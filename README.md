@@ -78,19 +78,19 @@ The code was last run on a **MacBook Pro, 1,7 GHz Quad-Core Intel Core i7** runn
 Description of programs/code
 ----------------------------
 
-Files marked with * contain modules imported by other files and are not meant to be executed 
+Files marked with \* contain modules imported by other files and are not meant to be executed 
 
-- * class_spatialModels.py contains the following classes 
+- \* class_spatialModels.py contains the following classes 
 
     1) spatialSAYDR. This class contains all methods necessary to simulate a 5-state (behavioral) spatial-SIR model, and generates object attributes containing contagion statistics. Simulation data is saved as an object attribute. 
     2) spSAYDR_randLoc (child of spatialSAYDR). Simulates spatial-SIR with agents moved in randomly drawn locations every day
     3) spSAYDR_hetDensity (child of spatialSAYDR). Simulate spatial-SIR with initial density of agents decreasing from center of city 
 
-- * class_SIRmodel.py 
+- \* class_SIRmodel.py 
 
     contains the SIRmodel class, with all methods necessary to simulate a standard (behavioral) SIR model (without the spatial elements)
 
-- * class_averageStats.py contains the averageStats class used to compute average statistics for several replications of each simulation. The class accepts as input a list of objects of the spatialSAYDR class
+- \* class_averageStats.py contains the averageStats class used to compute average statistics for several replications of each simulation. The class accepts as input a list of objects of the spatialSAYDR class
 
 - sim_base.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/
 
