@@ -11,7 +11,7 @@ We kindly ask authors using or adapting this code in scientific publications to 
   Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
 
   BibTeX entry:
-  
+
   ```
   @misc{bisinmoro2020geo,
     title = "Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
@@ -113,6 +113,8 @@ We kindly ask academics using or adapting this code in scientific publications t
   Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
 
   BibTeX entry:
+
+  ```
   @misc{bisinmoro2020geo,
     title = "Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
     author = "Bisin, Alberto and Moro, Andrea", institution = "National Bureau of Economic Research",
@@ -124,6 +126,7 @@ We kindly ask academics using or adapting this code in scientific publications t
     URL = "http://www.nber.org/papers/w27590",
     howpublished = "NBER Working Paper Series \# 27590"
     }
+```
 
 Instructions to Replicators
 ---------------------------
