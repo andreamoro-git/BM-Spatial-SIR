@@ -1,5 +1,7 @@
 # BM-Spatial-SIR
 
+Replication package for "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
+
 Overview
 --------
 
@@ -36,11 +38,11 @@ Dataset list
 
 All files are provided
 
-| Data file               | Source    | Notes                        | 
+| Data file               | Source    | Notes                        |
 |-------------------------|-----------|------------------------------|
 | `stata/rawdata.csv`     | generated | see stata/importdata.do      |
 | `stata/rawdata.dta`     | generated | stata version of rawdata.csv |
-| `input/drlombardia5.txt`| generated | used for calibration         | 
+| `input/drlombardia5.txt`| generated | used for calibration         |
 
 Computational requirements
 ---------------------------
@@ -78,21 +80,22 @@ The code was last run on a **MacBook Pro, 1,7 GHz Quad-Core Intel Core i7** runn
 Description of programs/code
 ----------------------------
 
-Files marked with \* contain modules imported by other files and are not meant to be executed 
+Files marked with \* contain modules imported by other files and are not meant to be executed
 
-- \* class_spatialModels.py contains the following classes 
+- \* class_spatialModels.py contains the following classes
 
-    1) spatialSAYDR. This class contains all methods necessary to simulate a 5-state (behavioral) spatial-SIR model, and generates object attributes containing contagion statistics. Simulation data is saved as an object attribute. 
+    1) spatialSAYDR. This class contains all methods necessary to simulate a 5-state (behavioral) spatial-SIR model, and generates object attributes containing contagion statistics. Simulation data is saved as an object attribute.
     2) spSAYDR_randLoc (child of spatialSAYDR). Simulates spatial-SIR with agents moved in randomly drawn locations every day
-    3) spSAYDR_hetDensity (child of spatialSAYDR). Simulate spatial-SIR with initial density of agents decreasing from center of city 
+    3) spSAYDR_hetDensity (child of spatialSAYDR). Simulates spatial-SIR with initial density of agents decreasing from center of city
+    4) spSAYDR_behav (child of spatialSAYDR). Simulates spatial-SIR with behavioral responses
 
-- \* class_SIRmodel.py 
+- \* class_SIRmodel.py
 
     contains the SIRmodel class, with all methods necessary to simulate a standard (behavioral) SIR model (without the spatial elements)
 
 - \* class_averageStats.py contains the averageStats class used to compute average statistics for several replications of each simulation. The class accepts as input a list of objects of the spatialSAYDR class
 
-- sim_base.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/
+- sim_base.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/ The file contains lists of objects corresponding to the estimated model, each object is one replication of a model simulation
 
 - fig-shortpaper.py contains all code used to generate the figures in the paper
 
