@@ -127,8 +127,8 @@ To download and regenerate calibration data (optional)
 
 To simulate the model and generate figures:
 
-- 1) Run sim_base.py
-- 2) Run fig-shortpaper.py
+1) Run sim_base.py
+2) Run fig-shortpaper.py
 
 All figures are saved in output/images
 
