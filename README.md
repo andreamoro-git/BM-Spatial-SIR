@@ -5,7 +5,7 @@ Replication package for Alberto Bisin and Andrea Moro, "Learning Epidemiology by
 Overview
 --------
 
-The code in this replication package generates the data and figures for the paper using Python and Stata. The replicator should expect the code to run for about 15 hours. This readme does not contain a full documentation describing how to generate new model simulation. Please refer to the code in class_spatialModels.py and its comments for details.
+The code in this replication package generates the data and figures for the paper using Python and Stata. The replicator should expect the code to run for about 5-10 hours. This readme does not contain a full documentation describing how to generate new model simulation. Please refer to the code in class_spatialModels.py and its comments for details.
 
 We kindly ask authors using or adapting this code in scientific publications to cite our paper:
   Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
@@ -59,9 +59,9 @@ This code has been run on a MacBook Pro, 1,7 GHz Quad-Core Intel Core i7 running
   - `matplotlib` 3.3.2
   - `pandas` 1.1.3
 
-The python code was run using the IDE Spyder version 4.2.0
+- (optional) The python code was run using the IDE Spyder version 4.2.0
 
-- The code used to download and generate calibration data (provided in the distribtion) was run with Stata 14.
+- (optional) The code used to download and generate calibration data (provided in the distribution) was run with Stata 14.
 
 ### Memory and Runtime Requirements
 
@@ -73,12 +73,14 @@ Figures from such data is generated in seconds
 
 #### Summary
 
-Approximate time needed to reproduce the analyses on a standard 20 desktop machine: 15-20 hours
+Approximate time needed to reproduce the analyses on a standard 2020 desktop machine: 5-10 hours
 The execution time can be shortened by reducing the number of replications of each simulation (variable nboots in each simulation). Results may vary slightly
 
 #### Details
 
 The code was last run on a **MacBook Pro, 1,7 GHz Quad-Core Intel Core i7** running on **MacOS Catalina 10.15.6**
+
+The code assumes the root directory is the working directory, loads data from input/ and saves output in output/
 
 Description of programs/code
 ----------------------------
@@ -98,9 +100,21 @@ Files marked with \* contain modules imported by other files and are not meant t
 
 - \* class_averageStats.py contains the averageStats class used to compute average statistics for several replications of each simulation. The class accepts as input a list of objects of the spatialSAYDR class
 
-- sim_base.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/ The file contains lists of objects corresponding to the estimated model, each object is one replication of a model simulation
+- sim-paper.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/ The file contains lists of objects corresponding to the estimated model, each object is one replication of a model simulation
 
-- fig-shortpaper.py contains all code used to generate the figures in the paper
+- fig-paper.py contains all code used to generate the figures in the paper
+
+- sim-appendix.py code to run simulations of spatial_SIR models necessary to generate appendix figures
+
+- fig-appendiz.py code to generate appendix figures
+
+- input/ directory containing input data
+
+- stata/ directory containing stata code to generate input data
+
+- output/ empty directory, storing generated simulation data
+
+- output/images empty directory, storing generated figures
 
 The random seed is set as spatialSAYDR attribute q_seed (row 33 of class_spatialModels.py) and passed as a parameter when the attribute is called in sim_base.py. When running multiple replications of the same model, the seed is changed accordingly
 (see e.g. file sim_base.py, row 53)
