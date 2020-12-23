@@ -1,6 +1,6 @@
 # BM-Spatial-SIR
 
-Replication package for "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
+Replication package for Alberto Bisin and Andrea Moro, "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
 
 Overview
 --------
@@ -29,7 +29,7 @@ We kindly ask authors using or adapting this code in scientific publications to 
 Data Availability and Provenance Statements
 -------------------------------------------
 
-- Data used for the model calibration is downloaded from the Italian government github web site https://github.com/pcm-dpc/COVID-19 and analyzed using Stata. The code in stata/importdata.do downloads the raw data and creates a moving average of growth rates of infections in the Lombardy region, saved in input/drlombardia5.txt. A copy of the original file downloaded on 12/16/2020 is saved in csv format in stata/rawdata.csv
+- Data used for the model calibration is downloaded from the Italian government github web site https://github.com/pcm-dpc/COVID-19 and analyzed using Stata. The code in stata/importdata.do downloads the raw data and creates a moving average of growth rates of infections in the Lombardy region, saved in input/drlombardia5.txt. A copy of the original source data file downloaded on 12/16/2020 is saved in csv format in stata/rawdata.csv
 
 ### Statement about Rights
 
@@ -87,7 +87,7 @@ Files marked with \* contain modules imported by other files and are not meant t
 
 - \* class_spatialModels.py contains the following classes
 
-    1) spatialSAYDR. This class contains all methods necessary to simulate a 5-state (behavioral) spatial-SIR model, and generates object attributes containing contagion statistics. Simulation data is saved as an object attribute.
+    1) spatialSAYDR. This class contains all methods necessary to simulate a 5-state (behavioral) spatial-SIR model, and generates object attributes containing contagion statistics. Simulation data is saved in object attributes.
     2) spSAYDR_randLoc (child of spatialSAYDR). Simulates spatial-SIR with agents moved in randomly drawn locations every day
     3) spSAYDR_hetDensity (child of spatialSAYDR). Simulates spatial-SIR with initial density of agents decreasing from center of city
     4) spSAYDR_behav (child of spatialSAYDR). Simulates spatial-SIR with behavioral responses
@@ -131,7 +131,7 @@ We kindly ask academics using or adapting this code in scientific publications t
 Instructions to Replicators
 ---------------------------
 
-To download and regenerate calibration data (optional)
+(Optional step) To download and regenerate calibration data (optional)
 - Run stata/importdata.do
 
 To simulate the model and generate figures:
