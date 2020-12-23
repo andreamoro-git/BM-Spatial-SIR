@@ -7,7 +7,7 @@ Replication package for Alberto Bisin and Andrea Moro, "Learning Epidemiology by
 Overview
 --------
 
-The code in this replication package generates the data and figures for the paper using Python and Stata. The replicator should expect the code to run for about 5-10 hours. This readme does not contain a full documentation describing how to generate new model simulation. Please refer to the code in class_spatialModels.py and its comments for details.
+The code in this replication package generates the data and figures for the paper using Python and Stata. The replicator should expect the code to run for about 5-10 hours (including the code necessary to reproduce appendix data and figures). This README file does not contain documentation describing how to generate new simulations. Please refer to the code in class_spatialModels.py and its comments for details.
 
 We kindly ask authors using or adapting this code in scientific publications to cite our paper:
   Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
