@@ -129,4 +129,8 @@ dmypy.json
 .pyre/
 
 # added by me
-output/
+output-SAIRD/
+junk/
+test*
+*.pickle.gz
+*.DS_store
