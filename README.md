@@ -128,7 +128,7 @@ The random seed is set as spatialSAYDR attribute q_seed (row 33 of class_spatial
 This code is licensed under a Creative Commons/CC-BY-SA 4.0 (Attribution-ShareAlike 4.0 International) license. See LICENSE.txt for details.
 
 We kindly ask academics using or adapting this code in scientific publications to cite our paper:
-  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
+  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, February 2021
 
   BibTeX entry:
 
@@ -138,8 +138,8 @@ We kindly ask academics using or adapting this code in scientific publications t
     author = "Bisin, Alberto and Moro, Andrea", institution = "National Bureau of Economic Research",
     type = "Working Paper",
     series = "Working Paper Series",
-    number = "27590", year = "2020",
-    month = "July",
+    number = "27590", year = "2021",
+    month = "February",
     doi = {10.3386/w27590},
     URL = "http://www.nber.org/papers/w27590",
     howpublished = "NBER Working Paper Series \# 27590"
