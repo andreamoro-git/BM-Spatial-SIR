@@ -10,7 +10,7 @@ Overview
 The code in this replication package generates the data and figures for the paper using Python and Stata. The replicator should expect the code to run for about 5-10 hours (including the code necessary to reproduce appendix data and figures). This README file does not contain documentation describing how to generate new simulations. Please refer to the code in class_spatialModels.py and its comments for details.
 
 We kindly ask authors using or adapting this code in scientific publications to cite our paper:
-  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
+  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, February 2021
 
   BibTeX entry:
 
@@ -20,8 +20,8 @@ We kindly ask authors using or adapting this code in scientific publications to 
     author = "Bisin, Alberto and Moro, Andrea", institution = "National Bureau of Economic Research",
     type = "Working Paper",
     series = "Working Paper Series",
-    number = "27590", year = "2020",
-    month = "July",
+    number = "27590", year = "2021",
+    month = "February",
     doi = {10.3386/w27590},
     URL = "http://www.nber.org/papers/w27590",
     howpublished = "NBER Working Paper Series \# 27590"
