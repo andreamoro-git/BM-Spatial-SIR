@@ -47,7 +47,7 @@ All files are provided
 |-------------------------|-----------|------------------------------|
 | `stata/rawdata.csv`     | generated | see stata/importdata.do      |
 | `stata/rawdata.dta`     | generated | stata version of rawdata.csv |
-| `input/drlombardia5.txt`| generated | used for calibration         |
+| `input/drlombardia.txt`| generated | used for calibration         |
 
 Computational requirements
 ---------------------------
@@ -102,13 +102,15 @@ Files marked with \* contain modules imported by other files and are not meant t
 
 - \* class_averageStats.py contains the averageStats class used to compute average statistics for several replications of each simulation. The class accepts as input a list of objects of the spatialSAYDR class
 
+- \* class_simul_policy.py contains class and code to generate policy simulations reported in the external appendix
+
 - sim-paper.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/ The file contains lists of objects corresponding to the estimated model, each object is one replication of a model simulation
 
 - fig-paper.py contains all code used to generate the figures in the paper
 
 - sim-appendix.py code to run simulations of spatial_SIR models necessary to generate appendix figures
 
-- fig-appendiz.py code to generate appendix figures
+- fig-appendix.py code to generate appendix figures
 
 - input/ directory containing input data
 
@@ -155,6 +157,10 @@ To simulate the model and generate figures:
 1) Run sim_base.py
 2) Run fig-shortpaper.py
 
+(To generate appendix figures)
+3) Run fig-appendix.py
+4) Run class_simul_policy.py
+
 All figures are saved in output/images
 
 List of figures
@@ -162,8 +168,9 @@ List of figures
 
 | Figure/Table #    | Program                  | Line Number | Output file                      | Note                            |
 |-------------------|--------------------------|-------------|----------------------------------|---------------------------------|
-| Figure 2          | 02_analysis/fig2.do      |             | figure2.png                      ||
-| Figure 3          | 02_analysis/fig3.do      |             | figure-robustness.png            | Requires confidential data      |
+
+please refer to latex files under \latex for figure names and search code for that name
+(note: bib and style files are missing therefore these files are reproduced here only fore reference and not for compilation)
 
 ---
 

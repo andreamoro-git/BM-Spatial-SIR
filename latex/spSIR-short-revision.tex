@@ -1,0 +1,820 @@
+\documentclass[english,11pt]{article}
+%\usepackage[nomarkers,nolists]{endfloat}
+% \usepackage{clipboard}
+%\newclipboard{spSIR-short-revision}
+ %\openclipboard{spSIR-short-revision}
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{lmargin=1.25in,rmargin=1.25in}
+\usepackage{color}
+\usepackage{array,multirow,tablefootnote,floatpag,booktabs,makecell,longtable}
+\floatpagestyle{plain}
+\usepackage{float} % adds H to float options
+\usepackage{nicefrac}
+\usepackage{caption}
+\captionsetup{labelfont=bf,textfont=bf,position=auto}
+\usepackage[flushleft]{threeparttable}
+\usepackage{amstext}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[labelformat=simple]{subcaption}
+\renewcommand\thesubfigure{(\alph{subfigure})}
+\titleformat{\subsubsection}[runin]{\bfseries}{}{}{}[]
+\usepackage[authoryear]{natbib}
+\usepackage{overpic}
+    
+%%%% THIS is to make xr package work in overleaf
+\usepackage{xr-hyper}
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+  \typeout{(#1)}
+  \@addtofilelist{#1}
+  \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+
+\newcommand*{\myexternaldocument}[2][]{%
+    \externaldocument[#1]{#2}%
+    \addFileDependency{#2.tex}%
+    \addFileDependency{#2.aux}%
+}
+
+\myexternaldocument[app:]{spSIR-appendix}
+%\myexternaldocument[app:]{spSIR-app-short}
+
+%consistent note legends 
+\newcommand{\notegrowth}{\emph{Note:} Growth rate of Infected (left panel) and Infected at date $t$ as a fraction of the population (right panel). }
+\newcommand{\notelegend}{The legend of the right panel indicates the steady state fraction of Recovered.}
+\newcommand{\notelegendbis}{The legend inside each panel indicates the steady state fraction of Recovered.}
+\newcommand{\notemix}[4]{\emph{Note:} Infected at date $t$ as a fraction of the population, #1 #2 #3 #4}
+
+%%%%%%%% Always better to load hyperref last
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=false,bookmarksnumbered=true,bookmarksopen=false,bookmarksopenlevel=2,
+ breaklinks=true,pdfborder={0 0 0},pdfborderstyle={},backref=page,colorlinks=true]
+ {hyperref}
+\hypersetup{allcolors=darkblue}
+\definecolor{darkblue}{rgb}{0,0.1,0.65}
+
+% THIS IS FOR BACK REFERENCES IN BIBLIO
+\renewcommand*{\backref}[1]{}
+\renewcommand*{\backrefalt}[4]{{\ifcase #1%
+          \or(Cited on page~#2)%
+          \else(Cited on pages #2)%
+    \fi%
+    }}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\setcounter{footnote}{3}
+\author{
+    Alberto Bisin 
+    \and 
+    Andrea Moro}
+
+\title{Learning Epidemiology by Doing: \\ The Empirical Implications of a Spatial-SIR Model with Behavioral Responses\thanks{Bisin: New York University, \href{https://wp.nyu.edu/albertobisin/}{\texttt{wp.nyu.edu/albertobisin/}}, 
+\texttt{alberto.bisin@nyu.edu}. Moro: Vanderbilt University, \href{https://andreamoro.net}{\texttt{andreamoro.net}}, \texttt{andrea@andreamoro.net}. We thank Pedro Sant'Anna,  Giorgio Topa,  Maxim  Pinkovskiy, the editor and two anonymous referees for their helpful
+comments on earlier drafts of this paper, and Gianluca Violante for suggestions about the calibration. }
+}
+\date{\today \\ {\small First version: June 10, 2020}}
+\maketitle
+\begin{abstract}
+    We simulate a spatial behavioral model of the diffusion of an infection to understand the role of geographic characteristics: the number and distribution of outbreaks, population size, density, and agents' movements.
+    We show that several invariance properties of the SIR model concerning these variables do not hold when agents interact with neighbors in a (two dimensional) geographical space. Indeed, the spatial model's local interactions generate matching frictions and local herd immunity effects, which play a fundamental role in the infection dynamics. We also show that geographical factors affect how behavioral responses affect the epidemics. We derive relevant implications for estimating the effects of the epidemics and policy interventions that use panel data from several geographical units. 
+\end{abstract}
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+The SARS-CoV-2 epidemic has diffused at very different rates across countries and cities.\footnote{See  \cite{Desmet2020} and  \cite{fernandez2020estimating}.} Plots of case statistics over time by location 
+%as in Figure \ref{fig:media} 
+are common with media and opinion leaders to compare the dynamics of the epidemic across geographical units, often intending to evaluate different policy interventions' effects.  But, how can we compare the United States to Ireland or New York to Miami, given their differences in population size, density, and other geographic and socio-economic characteristics?  How do we export parameter estimates about the epidemics obtained from the city of Vo', a small town near Padua, in Italy, or from the Diamond Princess cruise ship,  to understand the diffusion of the epidemics in New York city?\footnote{See 
+\cite{Lavezzo-Vo-Study} and \cite{Mizumoto_2020} 
+respectively.} 
+
+This paper proposes a spatial model of epidemic diffusion, the Spatial-SIR model, to study how the dynamics of an epidemic scales in relevant geographical characteristics: the number and distribution of outbreaks, population size, density, and agents' movements.\footnote{
+    \cite{duranton-puga} overview the importance of geographic factors in economic modeling.
+    }
+The Spatial-SIR model imposes restrictions on the epidemic dynamics that depend on each location's geographical characteristics, informing comparisons across locations. We show that these restrictions cannot be uncovered from 
+the workhorse model or epidemic diffusion, the SIR model.\footnote{\cite{kermack1927contribution, kermack1932contributions}} These restrictions are consequential
+for empirical analysis using longitudinal infection data. 
+
+Section \ref{invariance} begins by highlighting the relevant invariance properties of SIR with respect to the geographic characteristics we focus on in this paper. Section \ref{sec:spatialSIRtheory}  introduces the Spatial-SIR model. Individuals
+are placed in a two-dimensional
+space and travel in this space at a given speed. When infected, they
+can only infect their neighbors with a probability that we
+interpret as the strength of the virus. 
+Spatial-SIR determines the diffusion rate of infection 
+depending on epidemiological and geographic factors that are 
+confounded in one parameter of the standard SIR.
+Section \ref{sec:SIRcomp} shows how distinguishing these factors is crucial in Spatial-SIR because the local interactions arising in the model generate matching frictions across agents. What we
+call ``local herd 
+immunities'' arise from the constrained movement of people
+in space. Local herd immunities break several  invariance relationships which hold in the SIR model (highlighted in Section  \ref{invariance}), where
+susceptible individuals match with infected individuals randomly.
+
+Section \ref{sec:spatialSIR} presents several simulations of a calibrated  Spatial-SIR to study the roles of geographic characteristics  %the number and distribution of outbreaks, population size, density, and agents' movements on epidemic outcomes. We highlight the quantitatively significant effects of these characteristics in determining infection dynamics.
+%These effects are missed in the standard SIR. 
+
+Section \ref{sec:behavioral} incorporates behavioral responses, not accounted for in the SIR model, into Spatial-SIR to highlight how their effects on the infection diffusion depend on geographic factors. 
+
+Section \ref{sec:empirical} presents five implications for 
+empirical analysis we learn from our model simulations. 
+Specifically, we note that research exploiting geographic variation in longitudinal data 
+to study the effect of policy interventions or other covariates on the epidemic
+outcomes must deal with 
+time-varying heterogeneity across locations that is hard to control 
+for without imposing a specific structure. Empirical research can gain from 
+imposing the cross-location restrictions implied by the epidemiological models.
+ 
+\subsection{Related Literature}\label{sec:related}
+
+Without any attempt at being exhaustive, we reference various epidemiology and economics contributions related to this paper in that they account for spatial characteristics and agents' behavioral responses in the SIR model. 
+
+\label{epiresearch}Research in epidemiology has extended SIR, allowing for detailed descriptions of the geographic, socio-economic, and demographic characteristics of the population of interest and its environment. A large class of these models is Agent-Based; that is,  simulated populations of agents characterized by micro-level rules of behavior over time and space; see, e.g., \cite{el2012social, hunter2018comparison} for surveys and methodological discussions.\footnote{More generally, for an introduction and survey of Agent-Based models in the social sciences, see, e.g.,  \cite{billari2012agent, bruch2015agent}.} These models allow for the emergence of large-scale behavioral patterns from micro-level behaviors, interactions, and agents' movements in their environments. In this paper, we adopt the Agent-Based models' methodology to this end. In social epidemiology, however, Agent-Based models generally incorporate detailed, granular  assumptions on human behavior and the social and physical environment, with the aim of forecasting with accuracy and precision the dynamics of an epidemic (as, say, meteorological models of weather dynamics); see, e.g., \cite{eubank2004modelling}, 
+the research at  \href{https://covid19.gleamproject.org}{GLEAM project}, 
+\href{https://www.mobs-lab.org/projects.html}{mobs-lab}, and the  \href{https://www.imperial.ac.uk/mrc-global-infectious-disease-analysis}{Imperial college MRC Centre for Global Infectious Disease Analysis}.\footnote{Available, respectively, at https://covid19.gleamproject.org, https://www.mobs-lab.org/projects.html, and https://www.imperial.ac.uk/mrc-global-infectious-disease-analysis}  In this paper instead we aim at identifying the stylized effects of geographic characteristics on the dynamics emerging from an abstract spatial-SIR  model.\footnote{For spatially explicit  Agent-Based models in the social epidemiology tradition of detailed forecasting models, see
+\cite{dunham2005agent, grefenstette2013fred}; and \cite{hunter2017taxonomy} for a survey.} 
+
+
+Most of the recent wealth of contributions to the study of the SARS-CoV-2 epidemic in economics has  restricted its epidemiology component to SIR and does  not account
+for the geographic characteristics that we focus on in this paper.\footnote{See e.g., \cite{atkeson2020will}, \cite{eichenbaum2020macroeconomics},  \cite{brotherhood2020economic}, and \cite{jarosch2020internal}}
+Several  exceptions, e.g., 
+\cite{argente2020cost},
+\cite{antras2020globalization}, \cite{birge2020controlling},  \cite{bognanni2020economic}, \cite{cua2020structural}, \cite{fajgelbaum2020optimal}, \cite{giannone}, \cite{glaeser2020much}, introduce spatial dimensions to SIR, but focus on how connections between  geographical units affect the epidemic diffusion. In this paper instead, we focus on the comparative dynamics of the epidemic  with respect to different geographical characteristics of (closed) units.
+
+The spatial dimensions we account for in the present paper introduce local interactions in the contact process between agents. Relatedly,  \cite{acemoglu2020testing}, \cite{alfaro2020social},  \cite{Azzimontietal2020}  extend SIR to explicitly model the epidemic dynamics in networks; \cite{ellison} allows for heterogeneity of the contact process between subpopulations.
+
+With respect to behavioral responses, models of rational agents limiting contacts to reduce the risk of  infection are relatively scarce in epidemiology; \cite{fenichel2013economic} \cite{weitz2020moving} are prominent examples, see also \cite{funk2010modelling} and  \cite{verelst2016behavioural}  for surveys. Most importantly, the formal modeling of behavioral responses has not yet broken into the large forecasting models which represent the core of the discipline as e.g., \cite{balcan2009multiscale}, \cite{balcan2010modeling}, \cite{chinazzi2020effect}, and   \cite{ferguson2020report}. 
+Not surprisingly, behavioral responses are instead central to epidemiological models in economics. Early contributions in this respect include \cite{geoffard1996rational} and  \cite{goenka2012infectious}; while recent work includes 
+\cite{acemoglu2020multi}, 
+\cite{aguirre}, \cite{argente2020cost}, 
+\cite{bethune2020covid}, \cite{farboodi2020}, \cite{fernandez2020estimating}, 
+\cite{greenwood2019equilibrium},
+\cite{keppo2020behavioral},   \cite{toxvaerd2020equilibrium}, as well as several of the papers cited above modeling spatial extensions of SIR.\footnote{See \cite{BisinMoroRat2020} for a formal introduction to SIR with forward-looking rational-choice agents.} None of these papers discuss the effects of the interaction between behavioral and spatial factors in the spread of an infection which we show has important implications for the dynamics of herd immunity and possibly for the effects of Non-Pharmaceutical Interventions (NPI). 
+
+\section{Invariances in the SIR Model  \label{invariance} }
+
+We first introduce the standard SIR model as a benchmark to evaluate the role of adding spatial structure. The society is populated by $N$ agents that are ex-ante identical. Let $\mathcal{S}=\{S, I, R\}$ denote the individual state-space, indicating Susceptibles, Infected, and Recovered.\footnote{In \cite{bisinmoro2020} we expand the state space to better capture some relevant aspects of the SARS-CoV-2 epidemic by adding Symptomatics and Dead. This expansion of the state space is inconsequential for studying the effects of geographical characteristics but adds realism, helping to study its policy implications.} 
+Let $h_t=[S_t,I_t,R_t]$ denote the distribution of the population across the state-space at time $t$. 
+The following transitions govern the dynamics of $h_t$: i) a Susceptible agent becomes infected
+ upon contact with an infected, with probability $\beta {I_t}/{N}$; ii) an  agent infected at $t$, can recover at any future period with probability $\rho$; 
+iii) a Recovered agent never leaves this state
+(this assumes that Recovered agents are immune to infection). 
+
+The SIR can be solved analytically.\footnote{See e.g., \cite{herben42hethcote}, \cite{Moll2020},  \cite{neumeyer2020clase}.} The equations describing its dynamics in discrete time are  
+\begin{equation}
+   \Delta  I_t = \beta S_t \frac{I_t}{N} - \rho I_t, \; \; \; \Delta R_t=\rho I_t, \; \; \; S_t+I_t+R_t=N.  \label{idot}
+\end{equation} 
+Parameter $\beta$ is to be interpreted as the infection rate and is related to $\mathcal{R}_0= \beta/\rho$, the number of agents a single infected agent infects, on average, at an initial condition $R_0=0, \; I_0 > 0$. The infection rate $\beta$ can be decomposed  as the infection rate per-contact between a Susceptible and an Infected, $\pi$, and the number of contacts per unit of time, $c$:   $\beta=\pi c$ (in the continuous time limit). Distinguishing
+the roles of the number of contacts  and  the contagion rate is conceptually 
+important to avoid interpreting  $\mathcal{R}_0$ and  $\beta$ as structural parameters of the model. In the Spatial-SIR we introduce in the next section, they are the result of virological,
+geographical and, in Section \ref{sec:behavioral}, behavioral factors.
+
+We highlight three invariance properties of the dynamics of the SIR model, with respect to initial conditions %$\frac{I_0}{N}$ 
+and to the spatial and virological parameters driving the dynamics. %$\pi, c, \rho$. 
+We'll further study the robustness of these invariances to the introduction of a spatial structure. 
+\newline
+
+\noindent {\bf Stationary state invariance to initial conditions.} 
+Given any $I_0>0$,\footnote{Initial conditions are uniquely represented by $I_0$, since $R_0=0$ and $S_0=N-I_0$.} the dynamic system converges to a  unique stationary state. Namely, the size of the initial outbreak, $I_0$,  does not affect the stationary state.  
+This stationary state of Infected is $I_{\infty}=0$, while the stationary state of Recovered (the fraction of the population infected in the course of the epidemic), $0<{R_{\infty}}/{N}<1$,  is characterized uniquely in terms of $\mathcal{R}_{0}=\beta/\rho$, as the solution of the following fixed point
+equation:
+\begin{equation}
+\frac{R_{\infty}}{N}=-\frac{1}{\mathcal{R}_{0}}\ln(1-\frac{R_{\infty}}{N}).\label{ss}
+\end{equation}
+
+\noindent {\bf Transitional dynamics invariance to initial conditions (in the limit ${I_0}/{N} \rightarrow 0$).} The   dynamics of ${h_t}/{N}$ depends on initial conditions only via  ${I_0}/{N}$. It is then  invariant as the fraction of infected at the initial condition converges to zero, ${I_0}/{N}  \rightarrow 0$. In particular, the peak of infected cases in this limit is 
+\begin{equation} 
+    \frac{I^{peak}}{N}=1-\frac{1}{\mathcal{R}_0} \left(1+\log \mathcal{R}_0 \right). 
+    \label{peak} 
+\end{equation}
+
+\noindent {\bf Transitional dynamics invariance to contacts  and probability of contagion,  keeping $\beta$ constant.} 
+The  dynamics of ${h_t}/{N}$ depends on the number of contacts  $c$  and probability of contagion, $\pi$, but is invariant to changes in  $c$  and $\pi$  that leave $\beta=\pi c$ constant. \newline 
+
+\label{transdyn}If the epidemic is governed by SIR, these invariances provide restrictions of the model which are testable with cross-city data i) when different cities have different initial conditions (infection outbreaks) $I_0$; and/or ii) when differences in the number of contacts and in the probability of contagion map into differences in  $\beta=\pi c$ and $\rho$ across cities.\footnote{Variation across virological characteristics can, in principle, be studied with data across different epidemics. In this paper, we concentrate mainly on geographical variation across cities.} % The transitional dynamics in SIR give rise to interesting comparative dynamics with respect to the geographic characteristics of different cities, which are testable with cross-city data. 
+
+\section{The Spatial-SIR model} \label{sec:spatialSIRtheory}
+
+We add a spatial dimension to SIR by locating agents in a 2-dimensional space, which we call the ``city.'' Agents are ex-ante identical in terms
+of demographics and symmetric in terms of location.
+Agents are randomly located initially, and every day $t=[0,T]$, they travel distance $\mu$ 
+toward a random direction. \label{travelspeed}By doing so, they potentially meet new individuals every day, therefore $\mu$ is an abstraction of the speed in which agents find new contacts, potentially in a different state than their previous neighbors.
+Two agents come into contact when they are at a geographical distance closer than $p$.\footnote{\label{spatialb}The spatial behavior of agents as postulated in Spatial-SIR  is mechanical and it abstract from the network structure, e.g., home, work, city, which characterizes real world behavior. This is to focus more clearly and directly on highlighting the fundamental effects of spatial behavior in determining the dynamics of the epidemic, as well as their stylized dependence on various  geographical characteristics (outbreaks, population size, density, agents' movements); see \cite{bisinmoro2020} for an extension of Spatial-SIR to allow for a network structure.} 
+
+Spatial-SIR is represented by the following transitions: 
+i) a Susceptible agent in a location within distance $p$ from the location of an Infected becomes infected with
+probability $\pi$;
+ii) an Infected agent can Recover at any period with probability $\rho$;  
+iii) Recovered agents never leave these states. 
+The resulting dynamical system is difficult to characterize formally.\footnote{\label{reac-diff}In Appendix \ref{app:sec:app_theory} we write it as a Markov chain on configurations in space, along the lines of interacting particle-system models \citep{ kindermann1980american, liggett2012interacting}. Some properties are obtained by analogy to the physics of percolation on lattices; see  \cite{grassberger1983critical}, \cite{tome2010critical}. For local-interaction models in Economics see  \cite{blume2011identification}, \cite{conley2007estimating}, \cite{glaeser2001measuring},  \cite{ozgur2011dynamic}. In Appendix \ref{app:sec:app_theory} we also discuss the mathematical formulation of this class of models in continuous time and space, as reaction-diffusion equations systems (see e.g. \cite{chinviriyasit2010numerical} and \cite{wu2017epidemic}).}
+We turn then to simulations. 
+
+Table \ref{parameters} reports the calibrated parameters we use in the baseline model. We calibrate transitions between states, $[S, I, R]$, to various SARS-CoV-2 parameters from epidemiological studies, notably, e.g., \cite{ferguson2020report}. We calibrate $\beta$ (in its components $\pi$ and $c$) and the agents' daily travel
+distance $\mu$ to data on average contacts from \cite{Mossong_2008} and to match estimates of initial (prior to policy interventions) growth rates of the epidemics in Lombardy, Italy.\footnote{We acknowledge the substantial uncertainty in the literature with respect to even the main epidemiological parameters pertaining to this epidemic. As we noted in the introduction, this is less damaging when aiming at understanding mechanisms and orders-of-magnitude rather than at precise forecasts.} The calibration is performed as follows. 
+%%%%%%%%%%%%%%%
+ \begin{table}
+ 	\thisfloatpagestyle{empty}
+	\caption{Calibrated parameter values: baseline model}\label{parameters}  
+    \centering
+    \begin{tabular}{clcc}
+        \toprule
+      &  Parameter                       & Notation  & Value\tabularnewline
+        \midrule
+     (1) &   number or people                & $N$       & 26,600\tabularnewline
+     (2) &  initially infected              & $I_0$    & 30 \tabularnewline
+        %side of city                    &           &   1   \tabularnewline
+     (3) &   prob. of recovery               & $\rho$    & 0.154   \tabularnewline 
+      (4) &  average contacts per day                & $c$       & 13.5 \tabularnewline
+     (5) &  contagion radius                & $p$       & 0.013\tabularnewline
+     (6) &  contagion probability           & $\pi$     & 0.054 \tabularnewline
+     (7) &  mean distance traveled          & $\mu$     & 0.034 \tabularnewline
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection*{(1)-(2) Population geography, initial conditions}	
+We choose $N$ so that our simulations converge in a reasonable time (see the beginning of 
+	Section \ref{sec:outbreaks} for a description of how the model scales in size). We place people      initially on a unit square
+	drawing their $x$ and $y$ coordinates independently from a Uniform distribution 
+	$\sim U[0,1]$%
+	\footnote{In the simulation with heterogeneous density we set initial locations at a distance 
+	from the center drawn randomly from a Normal distribution $\sim N(0,1)$ and direction
+	drawn from a Uniform distribution  $\sim U[0,2\pi]$.}.
+	At all $t>0$, individuals 
+	are relocated at distance $\mu$ from their location at $t-1$, in a direction randomly
+	drawn  from a Uniform distribution  $\sim U[0,2\pi]$. When individuals get close to the boundary, 
+	the movement is constrained to point to a direction opposite to the boundary. At time $t=0$ we  
+	set 30 individuals in Infected state; all 
+	others are Susceptibles. In all specification excepts those reported in Figures  \ref{fig:City-cluster-comparisons} (\ref{fig:cluster-rates}) and  \ref{fig:hetdensity} the 
+	Infected at $t= 0$ are those initially located closest to location $
+	[x=0.25,y=0.25]$. 
+	\smallskip
+
+\subsubsection*{(3) Transition away from the infected state, $I$.}  
+
+    The probability 
+	 any agents transitions away from state $I$ is $\rho$, hence the average time an agents stays in state  $I$ is 
+	 $T_\text{inf}={1}/{\rho}$. 
+	 We set $\rho$ to match a theoretical moment which holds exactly at the initial condition in SIR. Recall $\mathcal{R}_{0}$ denotes the number of agents a single infected agent at $t=0$ 
+	 infects, on average. Let $g_0$ 
+ 	denote the growth rate of the number of infected agents at $t=0$. Then, in SIR, 
+	${(\mathcal{R}_{0}-1)}/{T_\text{inf}}=g_0$\
+	for $t \rightarrow 0$. 
+	For SARS-CoV-2, $\mathcal{R}_{0}$ is reasonably estimated
+	between $2.5$ and $3.5$. (\cite{huang2020clinical},
+	\cite{remuzzi2020covid},
+	\cite{zhang2020estimation},
+	\cite{paules2020coronavirus}). 
+	The daily rate of growth of infections $g$ is estimated to be between $0.35$ and $0.15$
+	by \cite{kaplan2020gianluca}, \cite{alvarez2020simple}, and \cite{ferguson2020report}. This implies, from the equation above for $g_0$, that $T_\text{inf}$ is between 4 and 7 days
+	(respectively for $\mathcal{R}_{0}$ between 2.5 and 3.5).  \cite{ferguson2020report} use 6.5 days, which we use to set $\rho=1/6.5$. 
+	
+	\subsubsection*{(4)-(5) Contagion circle radius.} The contagion radius, $p$, is not separately identified from the average number of contacts, $c$. We set it to match the 
+	the average number of contacts observed in demographic surveys. \citet{Mossong_2008} suggests an average of  13 .5 contacts every day. 
+
+	 \subsubsection*{(6)-(7) Infection and contact rates.} 
+	After setting parameters (1)-(5), we calibrate the remaining parameters $\pi$ (hence $\beta= \pi c$) and $\mu$ to match the daily growth rates of the dynamics of infections observed in the first 35 days of epidemics using data for Lombardy, Italy. Since the number of infections is not observed, we match the growth rates of deaths in the data. This is justified when, as we assumed, the case fatality rate is constant, and Death follows infection after a constant lag on average. Appendix Figure \ref{app:fig-appgrowths} illustrates goodness of fit.   
+
+%FIGURE fig:geo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+    
+    \caption{Geographic progression of infections and recoveries, baseline model}
+
+\makebox[\textwidth][c]{        
+    \setlength\tabcolsep{0pt}
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day10.pdf} &  
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day20.pdf} &
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day30.pdf}
+    \end{tabular}
+}
+   \label{fig:geo}
+   \caption*{\normalfont\footnotesize Note: Each figure displays the position of individuals in the city at day 10, 20, and 30 since the start of the infection, color-coded by the agent's state}
+\end{figure}
+%\restoregeometry
+
+% END FIGURE fig:geo. %%%%%%%%%%%%%%%%%
+
+The dynamics of an epidemic in the Spatial-SIR model cannot be analyzed in closed form, but Figure \ref{fig:geo} illustrates these dynamics over time and space at the calibrated parameters. The epidemic spreads exponentially from the location of the outbreak.\footnote{All our simulations, for all parameter values and initial conditions, converge to a unique distribution over the state space $ \left[S,I,R \right] $.
+} In the next sections, we compare the dynamics under SIR and Spatial-SIR.   
+
+\section{Local Herd Immunity}\label{sec:SIRcomp}
+ 
+To understand how Spatial-SIR differs from SIR, we simulate the evolution over time of the infection growth rates 
+and the fraction
+of active cases (that is, infected agents, $I_t/N$) in both models.
+We show that geography and people's movements in Spatial-SIR generate local interactions
+and matching frictions creating a form of \emph{local herd immunity}, absent in SIR. 
+\label{randmatch}Formally, in SIR, random matching implies that  the probability that
+any  Susceptible agent is infected at time $t$ is $\beta {I_t}/{N}$.\footnote{
+We exploit the continuous-time approximation for ease of exposition. In discrete-time (hence in the simulations), the probability that a susceptible agent is infected per unit of time after $c$ contacts is $1-(1-\pi {I}/{N})^c$.
+} 
+In Spatial-SIR, this probability is not common across susceptible agents as it depends on the distribution of agents and their states across space, say $H_t$.\footnote{Formally, $H_t$ is a stochastic process whose realization at $t$ maps any agent (or any location, in an equivalent formulation) into a state $h \in \{S, I, R\}.$} We can then describe the probability that a susceptible agent is infected {\em on average} in the Spatial-SIR model as $\beta \lambda(H_t)$, for a well-defined function $\lambda$ which encodes the effects of local herd immunity.\footnote{In Spatial-SIR, the probability that a susceptible agent is infected is not linear in ${I_t}/{N}$ as in SIR. As a consequence, the Spatial-SIR cannot be mapped into a SIR model for some $\beta$ depending on $t$ (see the Appendix for a more formal description of Spatial-SIR). We discuss this point more explicitly when we draw the empirical implications of our analysis in Section \ref{sec:empirical}.}%\footnote{[NOTE THAT THE FUNCTIONAL FORM OF THE DEPENDENCE OF PROBABILITY ON $I_t$ CHANGES OVER TIME - THIS IS WHY THE MODEL CANNOT BE REDUCED TO ONE WHERE CONTACTS DEPEND ON GEOGRAPHY]} 
+ 
+\begin{figure}
+        \caption{SIR and Spatial-SIR comparison of infection dynamics}
+        \label{fig:densitycomp}
+   	\centering
+        \includegraphics[width=0.85\linewidth]{figuresdir/nc5-density_contagion2.pdf}
+ 
+    \caption*{\normalfont\footnotesize 
+    \notegrowth
+    \notelegend Continuous green lines: calibrated baseline Spatial-SIR; dashed orange lines: SIR model with an infection and recovery rates equivalent to the ones implied by the calibrated Spatial-SIR; brown dotted lines:  Spatial-SIR with baseline parameters, except with individuals' geographic locations drawn randomly every day with the same rules used to draw initial locations.}
+\end{figure}
+
+
+More specifically, in Figure \ref{fig:densitycomp} we compare simulations of  
+a Spatial-SIR, 
+with the parameters we calibrated for our baseline model, and of a SIR, with $\beta$ equal to our calibrated value of the contagion rate multiplied by the average number of daily contacts, implied our calibrated city's population density and contagion radius. 
+%we set $\rho=0.05$, as in our baseline model.  
+%\end{enumerate}
+ The Spatial-SIR displays lower growth rates than SIR initially. ``Local herd immunities'' slow down the diffusion of infection in the early stages and accelerate it afterward (as aggregate herd immunity is delayed); in other words,   $\lambda(H_t)$ is initially smaller and then larger than $I_t/N$. In the figure, the dashed yellow lines report growth rates for a version of Spatial-SIR with agents placed in a random location in the city \emph{every day}, mimicking the random matching aspect of SIR and therefore minimizing the formation of local herd immunities. As expected, the  effect of local herd immunity is much weaker in this model.\footnote{
+The role of local herd immunity in both SIR and Spatial-SIR outcomes is also evident when comparing the effects of Non-Pharmaceutical Interventions such as lockdown policies; see the Appendix and \cite{bisinmoro2020} for details.
+}   
+
+The effect of local herd immunity indicates that the ``reduced form'' nature of SIR models is missing a potentially important role of matching frictions and, more generally, of local dynamics. Similar considerations can be obtained looking at $\mathcal{R}_0$  (a random variable in Spatial-SIR because the number of contacts of an individual is random).  Replicating simulations of our baseline Spatial-SIR, we estimate \textbf{$\mathcal{R}_0$} as the average number of people infected 
+by those infected during the first five days. 
+This estimate is within
+the range used to calibrate transition rates in many
+studies (between 2.5 and 3.5) but is highly volatile. In 20 random replications of the model, the average $\mathcal{R}_0$ is 3.17, with a standard deviation of 0.58.
+However, in Spatial-SIR this volatility does not translate into similarly different aggregate outcomes as predicted by standard SIR. The fraction of people ever infected in steady-state averages to 0.97 in the 20 replications, with a standard deviation of 0.001. This suggests that, in our model, $\mathcal{R}_0$ loses its role as the fundamental driving parameter of the epidemics: outcomes are also highly sensitive to characteristics of the
+initial cluster of infection.\footnote{Outcomes are also somewhat sensitive to the precise location of the initially infected; therefore the simulation dynamics we display in simulations of Spatial-SIR report averages of 20 random replications of the models}.
+While the infection rate during the initial stages is uniquely determined by the structural parameters  $\mathcal{R}_0$ and $\rho$, which are (relatively) independent of the spatial structure of the model,  the infection dynamics rests on the spatial local interaction structure. The growth rate of the infection declines early on following a form of local herd immunity. Indeed, this is what we observe in the data, and we set parameters to match.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Oubreaks,  Population Size, Density, and Agents' Movements} \label{sec:spatialSIR}
+
+In this section, we study the comparative dynamics of the spread of an epidemic as it depends on various relevant geographical characteristics across cities, which determine matching frictions. We compare the effects of these geographical characteristics on both stationary and transitional dynamics in Spatial-SIR with those in SIR. More specifically, we capture the properties of the stationary states by the fraction of recovered, ${R_{\infty}}/{N}$ (as ${I_{\infty}}/{N}=0$ and ${S_{\infty}}/{N}=1-{R_{\infty}}/{N}$). We capture the properties of the transitional dynamics, on the other hand, by the time it takes to for an outbreak to reach the peak of active cases, a measure of the speed of the epidemic, and the height of the peak of active cases as a fraction of the population, ${I^{peak}}/{N}$, a measure of the intensity of the epidemic. 
+
+
+The geographical characteristics we concentrate on are outbreaks,  population size, density, and agents' movements. The number of initial outbreaks and the population size appear directly % have a direct counterpart
+in both Spatial-SIR and SIR. In Spatial-SIR, however, its is the entire distribution of initial outbreaks, not just the number $I_{0}$, which affects the dynamics of the epidemic. As a consequence, the effects of population size in Spatial-SIR are mediated through the initial conditions regarding the distribution of outbreaks. % The geographic element enriches the relationship between these two variables.  
+City density instead appears directly in Spatial-SIR, but has only an indirect counterpart in SIR.  City density in fact can be thought of as affecting parameter $\beta$ proportionally in SIR, because density affects the number of contacts $c$ by $c=d \Psi$, where $\Psi$  is the contagion area of any (susceptible) individual (which is maintained constant in all simulations), and $\beta=\pi c$.
+Finally, agents' movements appears directly in Spatial-SIR, as the average distance traveled every day, %(an abstraction for the number of new people agents interact with on a given day) 
+but is absent in SIR. %As a consequence, the average distance traveled generates predictions in Spatial-SIR  that would not be possible in SIR, because proxying it with epidemic parameters would ignore its interactions with other  geographic factors.
+
+ %Furthermore, they interacts with other variables in ways that can not be explicit in SIR.
+Generally, we show that all these geographic characteristics affect the epidemics differently in Spatial-SIR and SIR. In particular, we highlight that the simulated dynamics of Spatial-SIR do not satisfy some of the invariance properties of the SIR dynamics we have delineated in Section \ref{invariance}. Fundamentally, the effect of local herd immunity on the dynamics is a function of geographic characteristics which, abusing notation, we denote as  $g=(I_0,N, d, \mu)$. We represent this by writing $ \lambda \left( H_t; g\right)  $.\footnote{As we noted, the dependence of  $\lambda$ on  $H_t$ cannot be expressed in closed form and changes over time; the same holds for its dependence on $g$. In other words, the dependence of Spatial-SIR on geographic characteristics is structurally distinct from what we would obtain in a SIR model allowing for  $\beta$ to depend on  $g$. We discuss this point more explicitly in Section \ref{sec:empirical}.}  This analysis of the effects of geography on the dynamic of the epidemic has some clearcut implications that empirical cross-city studies of epidemic dynamics should account for; we discuss these in some detail in Section \ref{sec:empirical}. 
+
+
+\subsection{Outbreaks}\label{sec:outbreaks}
+
+The epidemic dynamics in SIR only depends on initial conditions through ${I_0}/{N}$ (first and second invariance in Section \ref{invariance}). This implies scaling in size, that is, the invariance of the dynamics over $x$-times larger cities with $x$-times as many initial infected. 
+ In Spatial-SIR, however, as we noted, the space of the initial conditions is larger, as it includes the spatial distribution of infections. Indeed, the spatial distribution matters greatly in Spatial-SIR. Scaling in size obtains in Spatial-SIR only if initial infection outbreaks are appropriately homogeneously distributed across space.\footnote{In Appendix Figure 
+\ref{app:fig:2sizes} we compare the  
+progression of the contagion between the baseline city 
+and a city with four
+times the population and the area (so that density is constant), and with four initial clusters of the same size as in the baseline
+located in symmetric locations. The progression of the infection is nearly identical, barring minor effects due to the randomness of people's locations and movement.} 
+
+\begin{figure}[!ht]
+    
+    \caption{Geographic progression of infections and recoveries}\label{fig:clustercomp}
+    
+\begin{subfigure}{1.\linewidth}
+\makebox[\textwidth][c]{ %this is to center figure when larger than textwidth
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day10.pdf} &  
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day20.pdf} &
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day30.pdf}
+    \end{tabular}
+}
+    \caption{Baseline model} 
+    \label{fig:geo2}
+\end{subfigure} 
+
+\begin{subfigure}{1.\linewidth}
+    \makebox[\textwidth][c]{ %this is to center figure when larger than textwidth
+    \begin{tabular}{ccc}
+    \includegraphics[width=0.33\linewidth]{figuresdir/nc5-randomcluster_pos-day10.pdf} & 
+    \includegraphics[width=0.33\linewidth]{figuresdir/nc5-randomcluster_pos-day20.pdf} & 
+    \includegraphics[width=0.33\linewidth]{figuresdir/nc5-randomcluster_pos-day30.pdf}
+    \end{tabular}
+    }
+    \caption{Initial clusters of contagion randomly located}
+    \label{fig:City-cluster-comparisons}
+\end{subfigure} 
+
+   \caption*{\normalfont\footnotesize Note: Each figure displays the position of individuals in the city at day 10, 20, and 30 since the start of the infection, color-coded by the agent's state}
+\end{figure}
+
+To understand the role of the distribution of outbreaks in Spatial-SIR, in Figure \ref{fig:clustercomp}
+we compare the progression of the contagion in the baseline city (panel \ref{fig:geo2}, reproduced from Figure \ref{fig:geo}) with the progression in a city in which the infected agents are not placed on an initial cluster but are split in random locations (panel \ref{fig:City-cluster-comparisons}). 
+While in the baseline model
+contagion is relatively concentrated by day 30, contagion is much more widely spread when the initially infected are randomly located. Figure \ref{fig:cluster-rates} summarizes the infection dynamics in these two simulations: the progression of active cases 
+is faster when the initial cluster is randomly located, reaching a higher peak of
+ active cases (28\% rather than 13\%) earlier (on day 23 rather than on day 46). However, the fraction of Recovered at the stationary state is about the same, $97\%$).%
+\footnote{Please note that in this and other figures, the scales of the x and y axes may differ to improve the visualization. The x-axes are scaled to the number of days it takes for the epidemics to converge to steady-state; the y-axes are scaled to a level slightly greater than the maximum value of the displayed variables}
+
+\begin{figure}[t]
+    \caption{Infection dynamics: inital outbreaks in random locations}\label{fig:cluster-rates}
+    \centering
+    \includegraphics[width=.85\textwidth]{figuresdir/nc5-short-random-rates.pdf}
+    \caption*{\normalfont\footnotesize 
+    \notegrowth \notelegend Continuous green lines: calibrated baseline Spatial-SIR; dashed orange lines: Spatial-SIR with initial outbreaks in random locations}
+\end{figure}
+
+
+%\newgeometry{lmargin=1in,rmargin=1in}
+
+%The transitional dynamics of  infections, on the other hand, depend on initial conditions in both SIR and Spatial-SIR, though the effect is vanishing in SIR for small enough $I_0$ (second invariance in Section \ref{invariance}). We will see in the next section  that this effect will tend to be much larger and significant in Spatial-SIR through the dynamics of local herd immunity.
+
+\subsection{Population size} 
+
+In this section, we study the effects of changing population size $N$ and city area proportionally so as to keep the city
+density constant, fixing the number of initial infections, $I_0$, and their spatial distribution (assumed homogeneous to highlight the effects of $N$). 
+
+In the SIR model, these changes have no effect on the stationary state (first invariance in Section \ref{invariance}) and a vanishing effect on the transitional dynamics for small enough $I_0$ (second invariance in Section \ref{invariance}).  More generally, increasing size $x$-times  (for a given $I_0$)  increases the peak by only  $-1/ \mathcal{R}_0 \ln x$  percentage points in SIR.   
+On the other hand, while population size has no effect on the stationary state of the epidemics in Spatial-SIR as well, it has an important effect on transitory dynamics. 
+In Figure \ref{fig:SIR-City-size-comparisons}   we 
+report infections, as a fraction of the population, for both models in three cities: the baseline, a city with one fourth, and one with four times the baseline population.  As noted, changing population size does not change the stationary state fraction of infected, approximately equal to
+97 percent of the population, independently of city size, in both models. 
+
+With regards to the transitional 
+dynamics, their dependence on size is minimal in SIR, hardly visible in fact  in our simulation (see right panel --- more populated cities take longer to reach the peak only because we keep the initial conditions constant). In Spatial-SIR instead, the curve displaying the fraction of active
+cases is flatter in larger cities (left panel). More specifically, in Spatial-SIR, with respect to SIR, the same difference in population size reduces the peak to about one quarter (from .28  to .07 active cases). Relatedly, the time (in days) to reach the peak in larger cities goes from 15 to 22 days in SIR, and from 23 to 104 days in Spatial-SIR. Note that the peak is lower in larger cities \emph{as a fraction of the population}, which suggests that resources such as hospital beds, ventilators, etc\ldots, distributed proportionally to population size are less likely to be binding in large cities.
+
+\begin{figure}[t]
+    \caption{Infection dynamics: population size in Spatial-SIR (left panel) and SIR (right panel)}\label{fig:SIR-City-size-comparisons}
+    
+    \centering{}%
+        \includegraphics[width=.85\textwidth]{figuresdir/nc5-SIR-citysize-rates.pdf}
+
+    \caption*{\normalfont \footnotesize 
+    \notemix{Spatial-SIR (left panel)}{SIR (right panel)} Green continuous lines: baseline model; orange dashed line: four times the baseline population; brown dotted lines: one quarter the baseline population (brown dotted lines), keeping density constant. \notelegendbis}
+\end{figure}
+
+
+\subsection{City density} 
+
+In this section, we describe the role of city density on the dynamics of the epidemic. We first show that  city density - which is proportional to contacts - 
+plays a distinct role in 
+Spatial-SIR from the inverse of the probability of infection, breaking the third SIR  invariance in Section \ref{invariance}.
+This is shown in Figure \ref{times6} where the baseline calibrated Spatial-SIR is compared with an environment with six times the probability of infection and 1/6th the density: the effect on the dynamic of 
+infection is different both qualitatively and
+quantitatively. 
+
+Density is a crucial determinant of the dynamics of the epidemic because, together with the contagion
+rate, it determines the average number of infections occurring on a given date. Increasing
+density while keeping the contagion radius the same increases the number of contacts that each infected individual has on a given day. In fact, in Spatial-SIR, changing city density while keeping the contagion rate and the population size constant has important effects on both the stationary state and the transitional dynamics of the epidemic, as illustrated in Figure \ref{fig:3density} (left panel).  We see that indeed the peak of active cases is increasing in, and very sensitive to, density:   halving density relative to the baseline dramatically flattens the peak of the infection (by more than one-half, after more than twice as many days from the outbreak). 
+\begin{figure}[t]
+    \caption{Infection dynamics: density, constant $\beta$}\label{times6}
+    \centering
+            \includegraphics[width=0.85\textwidth]{figuresdir/nc5-short-density_contagion1.pdf}
+    
+        \caption*{\normalfont \footnotesize 
+        \notegrowth \notelegend Continuous green lines: baseline Spatial-SIR; dashed orange lines: baseline Spatial-SIR with one-sixth the density and six times the contagion rate as the baseline model.
+        }
+        
+\end{figure}
+
+Comparing the effects of density (through contacts, and in turn through $\beta$) in  SIR and Spatial-SIR reveals some interesting patterns. The effects are qualitatively similar, as can be seen comparing the simulations on the left panel (Spatial-SIR) and on the right panel (SIR) of Figure \ref{fig:3density}. Quantitatively, however, density has much larger effects in Spatial-SIR. In the stationary state limit, the fraction of recovered in the densest economy is 1.13 times larger than in the least dense economy in  SIR and 1.31 times larger in Spatial-SIR. This is the case also with regards to the transition, i) the peak of active cases in the densest economy is 3.45 times larger than in the least dense economy in  SIR and 7.25 times larger (resp. 5.4 times smaller) in Spatial-SIR, and ii) the number of days to the peak on infections in the densest economy is four times smaller than in the least dense economy in  SIR and 5.4 times smaller in Spatial-SIR. 
+
+\begin{figure}[t]
+    \caption{Infection dynamics: density}\label{fig:3density}
+        \includegraphics[width=0.85\textwidth]{figuresdir/nc5-short-3densities.pdf}
+    \centering
+        \caption*{\normalfont \footnotesize 
+        \notemix{Spatial-SIR (left panel) }{and SIR (right panel.)}{}{}  Continuous green lines: baseline Spatial-SIR; dashed orange lines: baseline Spatial-SIR with one-half the density; brown dotted lines: baseline Spatial-SIR with twice the density, keeping population size constant. \notelegendbis
+        }
+      
+\end{figure}
+
+\begin{figure}[t]
+    \caption{Infection dynamics: heterogeneous density}\label{fig:hetdensity}
+    \centering
+    \begin{subfigure}{.4\textwidth}
+        \centering
+ 		\includegraphics[width=.85\textwidth]{figuresdir/nc5-hetdens_pos-day0.pdf}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+        \centering
+      \includegraphics[width=.85\textwidth]{figuresdir/nc5-hetdens1.pdf} 
+    \end{subfigure}
+    \caption*{\normalfont \footnotesize \notemix{Baseline Spatial-SIR (continuous green line),}{ and Spatial-SIR with heterogeneous density (dashed orange line).}{}{} The 
+    left panel 
+    illustrates the initial spatial distribution of Susceptibles in the model with heterogeneous density. The legend indicates the steady-state fraction of Recovered.}
+\end{figure}
+
+We also report, in Figure \ref{fig:hetdensity},  simulations comparing the baseline city (of constant density across space) with an identical city of heterogeneous density, declining from center to periphery (and initial cluster of infection in the center - the right panel illustrates the initial condition, with each grey dot representing a susceptible individual).
+While the stationary states of these cities differ minimally, the city with heterogeneous density experiences a smaller peak substantially earlier than the baseline. Namely, heterogeneous density induces a faster-growing epidemic initially, which subsequently slows down,  reaching herd immunity earlier (at about 40\% infected rather than 70\%). 
+This example illustrates a more general 
+\emph{selection}
+mechanism operating when agents are heterogeneous (for example, in age, socio-economic and professional characteristics, preferences for social interactions): those more susceptible to the spread of the infection (in this simulation, those living in denser regions) are selected to achieve herd immunity earlier.\footnote{See \cite{gomes2020individual} and \cite{britton2020mathematical} for  related theoretical analyses.}  
+
+\begin{figure}
+    
+    \thisfloatpagestyle{empty}
+    \caption{Geographic progression of infections and recoveries}\label{fig:nomove}
+    
+\begin{subfigure}{1.\linewidth}
+\makebox[\textwidth][c]{ %this is to center figure when larger than textwidth
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day10.pdf} &  
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day20.pdf} &
+        \includegraphics[width=0.33\linewidth]{figuresdir/nc5-baseline_pos-day30.pdf}
+    \end{tabular}
+}
+    \caption{Baseline model, days 10, 20, 30} 
+    \label{fig:geo3}
+\end{subfigure} 
+\medskip
+
+\begin{subfigure}{1.\linewidth}
+    \makebox[\textwidth][c]{ %this is to center figure when larger than textwidth
+    \begin{tabular}{ccc}
+    \includegraphics[width=0.33\linewidth]{figuresdir/nc5-nomove_pos-day10.pdf} & 
+    \includegraphics[width=0.33\linewidth]{figuresdir/nc5-nomove_pos-day20.pdf} & 
+    \includegraphics[width=0.33\linewidth]{figuresdir/nc5-nomove_pos-day30.pdf}
+    \end{tabular}
+    }
+%     \caption{No movement, days 10, 20, 30}
+%     \label{fig:nomove-geo}
+\end{subfigure} 
+
+\begin{subfigure}{1.\linewidth}
+    \makebox[\textwidth][c]{ %this is to center figure when larger than textwidth
+    \begin{tabular}{ccc}   \includegraphics[width=0.33\linewidth]{figuresdir/nc5-nomove_pos-day50.pdf} &          \includegraphics[width=0.33\linewidth]{figuresdir/nc5-nomove_pos-day150.pdf} &  		\includegraphics[width=0.33\linewidth]{figuresdir/nc5-nomove_pos-day250.pdf}
+          \tabularnewline
+        \end{tabular}
+    }
+    \caption{No movement, days 10, 20, 30, 50, 150, 250} \label{fig:nomove-geo}
+\end{subfigure} 
+
+   \caption*{\normalfont\footnotesize Note: Each figure displays the position of individuals in the city at a given day since the start of the infection, color-coded by the agent's state}
+\end{figure}
+
+\subsection{Movements in the city}
+
+In Spatial-SIR, the parameters controlling the variation in the random movement contribute to explaining the cross-city heterogeneity in the dynamics of the epidemic (these parameters obviously do not appear in SIR). In this section we study the effects of the distance traveled
+every day by each agent, $\mu$, on the epidemic dynamics.\footnote{Given our calibrated contagion radius, if all people in the city were uniformly spaced from each other, contagion would not occur. All infections in the baseline model occur because random placement and movement generate clusters of people closer to one another than the infection radius.} Changing these parameters affects the average number of contacts in the city. As we argued, the average number of contacts in the city has an effect that is similar to city density. 
+
+
+To provide an intuition of the dependence of the epidemic on the movement speed of agents in the city, in Figure \ref{fig:nomove} we compare the progression of contagion of the baseline model with the same progression in the extreme case when agents do not move.
+The infection spreads slowly. As the contagion expands, clusters of 
+susceptible (non-infected) people are clearly visible in the rightmost panel as large white spots within the green cloud. This is less likely to occur when people move, which is why 
+the speed of movement also affects the steady-state, as illustrated in Figure \ref{fig:nomovement-rates}.
+
+\begin{figure}[t]
+    \caption{Infection dynamics: movement speed}\label{fig:nomovement-rates}
+    \centering
+
+        	\includegraphics[width=0.45\linewidth]{figuresdir/nc5-short-nomovement-rateslarge.pdf} 
+%  
+    \caption*{\normalfont \footnotesize \notemix{Baseline Spatial-SIR (continuous green line),}{ Spatial-SIR with 20\% speed of movement relative to baseline (dashed orange line),}{ and Spatial-SIR with no movement (dotted brown line).}
+    The legend indicates the steady-state fraction of Recovered.}
+
+\end{figure}
+
+With constant density and people randomly moving around the city, the average number of contacts is 
+constant, but local herd immunity plays a fundamental role, and the dynamic of the infection changes with speed. With faster speed, infected people
+are more likely to find uninfected locations, making it less likely for people in these
+locations to stay immune until the steady-state. 
+
+The speed of people's movement around the city and the number of initial clusters have a 
+a very similar effect on outcomes, because if people move very fast, at the beginning of the infection
+they generate new clusters quickly.  
+
+\section{Behavioral Spatial-SIR \label{sec:behavioral}} 
+
+As we discussed in Section \ref{sec:related}, most epidemiological models do not formally account for behavioral responses to the epidemic. In those models, as in the analysis in the previous sections,  the number of daily contacts in the population, $c$, is a constant. 
+
+In this section, we model agents responding to the epidemic by choosing to limit their contacts. Following \cite{keppo2020behavioral}, we introduce a reduced-form behavioral response,  represented by a function $0 \leq \alpha( I_t) \leq 1$, acting as a proportional reduction of the agent's contacts (the population density $d$ multiplied by the contagion area of an infected individual $\Psi$) as a function of  the number of infected in the population:
+%\footnote{Since the fraction of asymptomatics is not observable, behavioral responses could only depend on the number of symptomatics, as a proxy; with Rational Expectations, however,  the agents rationally infer the map from $Y$ to $A$, say $A(Y)$, possibly with noise; see \cite{bisinmoro2020}.}
+
+\begin{equation} c=\alpha( I_t) d \Psi, \; \; \; 
+    \alpha(I_{t})=\left\{ 
+    \begin{array}{ll}   
+        1  & if \; \;  I_{t} \leq \underline{I} \\ 
+        \left( \frac{\underline{I}}{I_{t}} \right)^{1-\phi}  & if \; \;  I_{t}>\underline{I}
+    \end{array} \right. .  
+    \label{Ketal}
+\end{equation}
+
+We calibrate the dynamics of the epidemics allowing for the behavioral response (\ref{Ketal}) in  both SIR and Spatial-SIR.\footnote{We calibrated the SIR model as in the simulations in Section
+\ref{sec:SIRcomp} for this comparison.} In simulations of the behavioral models  we set $\phi=0.88$ in (\ref{Ketal}) as estimated by
+    \cite{keppo2020behavioral} using Swine flu data, and assume people start responding to the spread of the contagion very soon by setting $\underline{I}=0.01$. 
+In simulations of the standard SIR model with behavioral
+responses, we use the same parameters. We rank individuals by risk aversion and assume that anyone who self-isolates when $I_t=\hat{I_t}$ also self-isolates when $I_t>\hat{I_t}$, inducing persistence in the identity of the individuals who respond. 
+
+\begin{figure}
+    \centering
+    \caption{Reduction in contacts in behavioral models}
+        \label{fig:behavioral}
+        \includegraphics[height=.425\textwidth]{figuresdir/nc5-SIR_beh_responses.pdf}
+        \caption*{\normalfont \footnotesize Note: fraction of the population induced to avoid contact due to behavioral responses}
+\end{figure}
+
+The simulated   reduction in the number of contacts due to the behavioral response is reported in Figure  \ref{fig:behavioral}. \label{quotebehcomparison} In both the behavioral SIR and the behavioral Spatial-SIR, as the infection spreads, the reduction in contacts due to the behavioral reaction increases. Then, as herd immunity begins and the number of Infected 
+declines, the reduction of contacts decreases, and contacts return towards the initial (pre-infection) state. In Spatial-SIR, however, the reduction in contact is (about a third) smaller, but its peak drags for much longer. This is because local herd immunity starts showing its effects earlier, inducing agents to stop reducing contacts earlier, but then builds up more slowly.  
+
+ \label{behintro} Figure   \ref{fig:allbeh} %and  \ref{fig:beh_comp_VJ} 
+ reports simulations of the effects of behavioral responses by comparing models with and without behavior (green and orange lines, respectively). The peak of the growth rate of infections in the behavioral Spatial-SIR is lower than in the behavioral SIR, but it plateaues when declining, after about 25 days. In fact, the growth rate of infections has a much longer declining plateau in the behavioral Spatial-SIR than in the Spatial-SIR, a dramatic display of the effects of the interaction of behavioral and spatial factors in the spread of infection via the dynamics of local herd immunity.\footnote{The interaction of behavioral and spatial factors also modulate the effects of various non-pharmaceutical interventions, e.g., lockdown rules, as studied in \cite{bisinmoro2020}. In particular, substantiating a ``Lucas critique'' argument, the cost of naive discretionary policies ignoring the behavioral responses of agents and firms depend fundamentally on the local herd immunity effects due to the spatial dimension of the dynamics of the epidemic.}  
+
+In both SIR and Spatial-SIR, not surprisingly, the qualitative effects of behavioral response is to reduce the spread of infection, lowering the peak of infected. In Spatial-SIR, however, behavior also has the effect of slowing down the operation of herd immunity. As the number of contacts returns to normal, the behavioral response has lasting effects in the stationary state, reducing total cases more in Spatial-SIR than in SIR. While we do not report simulations to this effect, we notice here the important fact that the behavioral response, when derived from the agents' choice, depends on geographical characteristics $g$ as well, and these affect contacts. We denote the behavioral response then as $\alpha(I_t;g)$. 
+
+ Figure \ref{fig:allbeh} 
+highlights   the differential effects of behavioral responses on SIR. 
+The behavioral response is not
+only much stronger in Spatial-SIR, but qualitatively different when comparing both infection growth rates and the fraction of active cases. The peak of active cases in Spatial-SIR is 1/3 with respect to SIR, but the decline of the infection after the peak is slower. This is the result of the composition of the behavioral response, $\alpha( I_t;g)$, and the local herd immunity factor $ \lambda(H_t;g)$.  The first acts on the number of contacts, while the second acts on the distribution of infected between the contacts.
+
+%FIGURE fig:allbeh %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+    \centering
+    \caption{Infection dynamics in SIR and Spatial-SIR, effects of behavioral responses}
+    % \label{fig:beh_comp_K}
+    \label{fig:allbeh}
+    \begin{subfigure}{\linewidth}
+    \makebox[\textwidth][c]{ %this is to center figure when larger than textwidth
+    \includegraphics[height=.375\textwidth]{figuresdir/nc5-SIR_beh.pdf}
+    }
+    \end{subfigure}
+    
+    \caption*{\normalfont\footnotesize 
+    \notegrowth
+    \notelegend \ Continuous green lines: calibrated baseline Spatial-SIR; dashed green lines: SIR; dotted orange lines: Behavioral Spatial-SIR; dash-dotted orange lines: Behavioral SIR.}   
+\end{figure}
+
+\subsection{Behavioral Spatial-SIR with local reactions} \label{sec-spSIR-local}
+Spatial-SIR allows for a further dimension of the interaction between behavior and local space. Consider the case in which the behavioral reaction of an individual at time $t$ depends only on the fraction of people infected in a circular neighborhood centered at her location and of radius equal to the contagion radius.\footnote{We induce persistence in the identity of those that self-isolate again by ranking individuals by risk aversion. If the formula predicts a reaction by $x_i$\% individuals in a neighborhood centered around person $i$, person $i$ self-isolates if her risk aversion is below the x-th percentile among her neighbors.}
+
+Results are reported in Figure \ref{fig:behav-local}, which reproduces for comparison the results of the behavioral model (the orange dotted line in Figure \ref{fig:allbeh}). 
+\begin{figure}
+    \caption{The effect of local behavioral responses}
+    \label{fig:behav-local}
+    \centering
+    \includegraphics[width=.85\linewidth]{figuresdir/nc5-SIR_beh_local.pdf}
+  \caption*{\normalfont \footnotesize \notemix{Behavioral Spatial-SIR (continuous green line),}{ Behavioral Spatial-SIR with local responses (dotted orange line)}{}{} (right panel).
+  The left panel 
+    illustrates the reduction in contacts (fraction of population. \notelegend}
+\end{figure}
+The heterogeneity of infection rates across neighborhoods has much larger and interesting effects when the behavioral reaction of the agents is local, that is, when it depends on the infection rate in the neighborhood. In this case, as seen in Figure \ref{fig:behav-local}, the higher reduction in contacts during the first and the last days of the epidemic is very short-lived. For most of the epidemic, agents reduce their contacts substantially less (by more than half) with respect to the case in which they react to the infection rate of the whole population because it occurs only in neighborhoods with infections. Interestingly, these composition effects induce relatively small quantitative effects on the population growth rate of infections over time. In other words, local behavioral reactions appear to ``save'' on the reduction in contacts for (almost)-given dynamics of infections. 
+
+% FIGURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+\section{Implications for Empirical Analysis}\label{sec:empirical}
+
+We summarize five implications of our analysis to guide empirical research using panel data about the diffusion of an epidemic.
+We discuss both structural estimates of a formal epidemic model 
+and estimates of the causal 
+effects of a policy (typically, a Non-Pharmaceutical Intervention 
+(NPI), e.g., a lockdown), which in many applications adopt a
+Difference in Differences (DiD) design.  
+
+Consider panel data on the dynamics of an infection across different geographic units $i$. The econometrician observes the geographic characteristics $g_i=[I_{i,0}, N_i, d_i, \mu_i]$ of each city $i$% for several times $t$
+, and data on the dynamics of the infection,   $I_{i,t}, R_{i,t}$ (hence $S_{i,t}$).%\footnote{Possibly distinguishing $A_{i,t}$ from $Y_{i,t}$ and $R_{i,t}$ from $D_{i,t}$.}.
+
+\subsubsection*{1.\hspace{1ex}Cross-city restrictions in the standard SIR.} 
+To highlight how model restrictions could be exploited for empirical analysis, consider estimating a SIR model without behavioral
+effects as in standard epidemiological studies.  Consider the following specification: 
+\begin{eqnarray} 
+    \ln I_{i, t+1} -\ln I_{i, t} &=& \beta_{i,t} S_{i,t} \frac{I_{i,t}}{N_i} -\rho,   \label{bbetait0} \\
+    \text{where } \beta_{i,t}&=&\beta_i    =  \pi c_i, \; \;  c_i=d_i \Psi .   
+    \label{bbetait}
+\end{eqnarray}  
+ 
+Equations 
+(\ref{bbetait0}-\ref{bbetait}) impose important (falsifiable) cross-city restrictions, e.g., along the lines of the invariances we identified in Section \ref{invariance}. Several other empirically testable restrictions can be directly obtained from the closed-form representation of the dynamics; e.g.,  the growth rate of the fraction of infected in a city, \emph{coeteris paribus}, is proportional to the density of the city. 
+
+\subsubsection*{2.\hspace{1ex}Cross-city restrictions in Spatial-SIR.} 
+
+Accounting for spatial structure, Spatial-SIR introduces matching frictions through local social interactions, as shown in Section \ref{sec:spatialSIR}. The dynamics of the  infection %in (\ref{bbetait0}) 
+takes the form 
+ \begin{eqnarray}
+    \ln I_{i, t+1} -\ln I_{i, t} &= &\beta_{i,t} S_{i,t} 
+        \lambda (H_t;g_i)  
+         -\rho, \label{ISS}   \\
+ \text {where } \beta_{i,t}&= & \beta_i \text{ as in (\ref{bbetait})}. \nonumber
+         \end{eqnarray}  
+         
+The main driver of the differential effects in Spatial-SIR is local herd immunity. Geographic characteristics $g_i$ mediate the relationship between parameters and model outcomes without a parametric expression for the function $\lambda$, nor for the transition matrix of the stochastic process $H_t$, making it difficult to separately identify the effects of geography from infection strength.
+However, one can use the full structure of the model
+to match data with model predictions using simulation methods. 
+Alternatively,
+one could use simulations to estimate $\lambda(H_t; g_i)$ which can be used as a correction to the (much faster to simulate) dynamics
+of the SIR model, to estimate (\ref{ISS}-\ref{bbetait}). 
+
+\subsubsection*{3.\hspace{1ex}Identifying behavioral responses.} 
+Accounting for agents' response, the formal representation of the dynamics of the infection, Equation (\ref{bbetait0}) in SIR and (\ref{ISS}) in Spatial-SIR, are unchanged, but the number of contacts is endogenous and   (\ref{bbetait}) is modified to  
+\begin{equation} 
+    \beta_{i,t}    =  \pi c_{i,t}, \; \;  c_{i,t}= \alpha (I_t;g_i) d_i \Psi. \label{aa} 
+\end{equation}
+ This amplifies the 
+issues we highlighted so far, requiring a new identification strategy, notably, to handle the dependence of $\beta_{i,t}$ on $t$.
+In SIR the parameters predict the infection dynamics precisely. For example, there is a one-to-one correspondence between initial infection growth rates and the peak. 
+Deviations from such dynamics can non-parametrically identify $\pi$ from 
+$\alpha (I_t;g_i)$. Parametric identification
+can be achieved by assuming a functional form for 
+$\alpha (I_t;g_i)$ along the lines of (\ref{Ketal}).
+In Spatial-SIR the full specification is (\ref{ISS}-\ref{aa}). Identification in this case can
+rely on simulation methods as suggested at the end of empirical
+implication 2.\footnote{\cite{fernandez2020estimating} adopt simulation methods to estimate parameters separately for each location without imposing geographic restrictions.}
+%Besides attempting to estimate $\alpha(I_t;g_i)$, parametrically or by simulation methods,  behavioral responses can be identified directly with movement data. [EXPAND HERE - WE MEAN DIRECTLY DATA ON CONTACTS? - CITES??]
+%[THIS POINT IS USELESS] 
+ Evidence of agents' movements, using ``Big-Data''
+from Google, Safegraph, and Cuebig
+could also provide useful empirical strategies for identifying behavioral responses from infection 
+dynamics exploiting restrictions imposed by Spatial-SIR.%
+\footnote{See, e.g., \cite{farboodi2020}}
+
+\subsubsection*{4.\hspace{1ex}Identifying the time-varying effect of geography in DiD studies of policy interventions.} \label{didstudies} Reduced-form methods can be adopted to identify the effects of policy interventions, e.g., an NPI, exploiting the different time and location of their implementation. Consider a policy intervention as a treatment introduced at different times in different cities.\footnote{See e.g.,   
+\cite{allcott2020polarization},
+\cite{Chernozhukov2020},
+\cite{couture},
+\cite{courtemanche2020did}, 
+\cite{fang2020human},
+\cite{gupta2020effects}
+\cite{hsiang2020effect}
+\cite{maloney2020determinants},  \cite{mangrum2020college}, \cite{pepe2020covid},
+\cite{yilmazkuday2020covid}.  \cite{bacon2020} describes some threats to the validity of
+DiD-design in the analysis of NPIs to fight
+the spread of COVID-19. See also \cite{CALLAWAY2020}.} 
+Let  $\text{Treat}_{i,t}$ take value $1$ if city $i$ is treated by the policy at time $t$. 
+Denoting with $Y_{i,t}$ the variable of interest, 
+the effects of  $\text{Treat}_{i,t}$ can be evaluated by means of  a DiD design: 
+\begin{equation} 
+    Y_{i,t}= \nu + \eta_{i}   + \gamma_t +  \delta \text{Treat}_{i,t} +\lambda X_{i,t} \label{ns} 
+\end{equation} 
+where   $ \nu, \eta_i, \gamma_t$ are time and location effects and $X_{i,t}$ are  controls.
+Our analysis suggests that the validity of this research design depends on both the variable of interest, $Y_{i,t}$, and the modeling framework. Consider attempting to estimate the effect of policies on the number of contacts, $Y_{i,t}=c_{i,t}$, for example. In the standard SIR model, this variable is proportional to $\beta_{i}$ and depends on time $t$ only through the treatment. In this case therefore specification (\ref{ns}) can flexibly capture variation in $\beta_i$ by location. 
+
+Importantly, however, this specification fails to capture the dynamics of contacts in a SIR model with behavioral responses by agents. In this case in fact, contacts $c_{i,t}$ is proportional to $\alpha(I_{i,t}; g_i)$, as in equation (\ref{aa}), and hence it is not separable in $i$ and $t$, as required by the additive
+form $\eta_i+\gamma_t$ in (\ref{ns} ). Policy and agent behavior have separate effects on the dynamic of the epidemic both because behavioral responses have
+time-varying effects and because their effects 
+interact with 
+the effects of geography (a point
+generally disregarded in the few studies that try to account for behavioral responses).\footnote{When the data is treated by policy, special care must be used because 
+$\alpha (I_t;g_i)$ is also not invariant to policy by a Lucas critique argument, even in the absence of geographical factors; see \cite{bisinmoro2020} for an analysis of this issue.} 
+
+Our analysis shows that including a spatial dimension, as in the Spatial-SIR model, the vector of geographic factors  $g_i$  affects outcomes differently over time, introducing a time-varying heterogeneity that is not fully accounted by time and location fixed effects as in (\ref{ns}), even after including a vector of geographic factors  $g_i$  among the set of regressors, and even if interacted with time. Furthermore, the direct effects of the treatment also depend on geographic characteristics: a lockdown, for instance, acts as a reduction of density and affects local herd immunity differently depending on the initial density.  
+
+
+% Re\-duced-form methods can also be exploited to separately identify the effects of  policies. Consider a treatment, an NPI, introduced at different times in different cities.\footnote{See e.g.,   
+% \cite{allcott2020polarization},
+% \cite{Chernozhukov2020}
+% \cite{courtemanche2020did}, 
+% \cite{fang2020human},
+% \cite{hsiang2020effect}
+% \cite{maloney2020determinants},  \cite{mangrum2020college}, \cite{pepe2020covid}} The following 2-way fixed-effects DiD specification is meant to correspond to a structural SIR model, as in \ref{bbetait0}: 
+% \begin{equation} \ln I_{i, t+1} -\ln I_{i, t}= \nu + \left(\eta_{i}+\gamma_t+ \delta \text{Treat}_{i,t}\right) X_{i,t} \label{ns} 
+% \end{equation} 
+% %\begin{equation} \ln I_{i, t+1} -\ln I_{i, t}= \nu + \eta_{i}   + \gamma_t +  \delta \text{Treat}_{i,t} +\lambda X_{i,t}
+% %\end{equation} 
+% where   $ \nu, \eta_i, \gamma_t$ are time and location effects and $X_{i,t}$ are  controls. 
+% In this specification, $X_{i,t}$ captures the dynamics of $S_{i,t} \frac{I_{i,t}}{N_i}$, $\nu$ is $\rho$, and $\eta_{i}   + \gamma_t $ captures
+% $\beta_{i,t}$.   The treatment 
+% $  \text{Treat}_{i,t}$ then captures a
+% change in $\beta_i$ at time $t$. The 
+% specification indeed identifies the parameters of the structural SIR model, as in \ref{bbetait0}, with no behavioral component, that is, under \ref{bbetait}. In this case, in fact $\gamma_t=0$. But, importantly, the introduction on behavior, induces a $\beta_{i,t}$ which is not  a not separable in $i$ and $t$,  as in \ref{aa}. As a consequence, the additive
+% % form $\eta_i+\gamma_t$ in \ref{ns} is incorrect. Similarly, in Spatial-SIR if 
+% $X_{i,t}$ could capture 
+% $S_{i,t} 
+% \lambda(H_t;g_i)$ the specification 
+% \ref{ns} is correct under no-behavior but not under behavior. Of course in this case, data on $S_{i,t} \lambda(H_t;g_i)$ is hard to construct - requiring individual data.  
+
+%[FORMALLY, THE WHOLE RHS NEEDS TO BE MULTIPLIED BY $SI/N$ AND THEN THE ARGUMENT WE HAVE APPLIES TO SP-SIR BUT NOT TO SIR]
+% Our analysis of Spatial-SIR  implies that 
+
+% A similar specification is used in the literature to study the effects of the treatment to the growth rate in number of contacts $\ln c_{i, t+1} -\ln c_{i,t}$ rather than on the growth rate of cases 
+% $\ln I_{i, t+1} -\ln I_{i, t}$.\footnote{\cite{allcott2020polarization}, \cite{maloney2020determinants}}
+% But if $c_i$ depends on $I$, then the effect of $g_i$ is not captured by the city and time fixed effects $ \eta_i, \gamma_t$.
+% [I THINK THIS IS CORRECT - SEE EQ'N 8]
+%\subsubsection*{4bis}
+
+Finally, identifying the effects of policy intervention in reduced-form econometric models are even more severe when the variable of interest $Y_{i,t}$ is the growth rate of infections, $\ln I_{i, t+1} -\ln I_{i, t}$. In this case, in fact, 
+ the structure imposed by SIR, as in (\ref{bbetait0}), generates time-varying heterogeneity not fully captured by  time and location fixed effects even without behavioral responses or spatial dimensions and local herd immunity. 
+ 
+%\subsubsection*{4ter}
+
+\subsubsection*{5.\hspace{1ex}Geographic units of analysis and their characteristics.} 
+Geographic units of analysis should be chosen so that density and other geographic characteristics are relatively homogeneous. 
+For this reason, empirical analyses with data across 
+countries involve additional concerns with respect to data across cities. 
+
+In Section \ref{sec:spatialSIR} we found that, besides population size and density, the distribution of outbreaks and the speed of movement of the agents have systematic effects on the dynamics of an epidemic. Proxies like airport activity for the number of outbreaks, the distribution of socio-economic characteristics for the distribution of outbreaks, the use of public transportation for the movement of agents, could be fruitfully adopted in both reduced-form and 
+structural estimates. We note that in structural estimates, heterogeneous density and various distribution of outbreaks can be easily included in the estimation of a Spatial-SIR (but not in an estimation of the SIR).
+
+\section{Conclusions} 
+
+We study the effects of several stylized spatial factors identifying the fundamental role of local interaction and matching frictions as a determinant of the dynamics of epidemics. We highlight important implications for empirical studies on the diffusion of an epidemic, providing a framework for disentangling the effects of local interactions/matching frictions, behavioral responses of risk-averse agents, and policy interventions. 
+
+\newpage
+\bibliographystyle{aer}
+\bibliography{covid}
+
+
+\end{document}
