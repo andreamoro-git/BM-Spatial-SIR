@@ -1,6 +1,6 @@
 # BM-Spatial-SIR
 
-Replication package for Alberto Bisin and Andrea Moro, "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, June 2020
+Replication package for Alberto Bisin and Andrea Moro, "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, February 2021
 
 ![alt='size comparison'](output/images/nc5-app-animation-sizecomp.gif)
 
