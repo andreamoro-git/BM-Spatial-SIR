@@ -10,7 +10,7 @@ save "rawdata", replace
 outsheet using rawdata.csv, comma replace
 
 
-use ../input/rawdata
+use rawdata
 replace codice_regione=21 if denominazione_regione == "P.A. Bolzano"
 
 xtset codice_regione day
