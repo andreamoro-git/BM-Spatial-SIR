@@ -254,7 +254,7 @@ class spatialSAYDR() :
                 
                 #draw infection only from the closest, and if they are not infected already
                 mask = ((dist_i<self.p_infradius) & (state==self.S) & (newinf==False))
-                draw = np.random.choice(2,np.sum(mask),p=[1-p_probc,p_probc])
+                draw = np.random.choice(2, np.sum(mask),p=[1-p_probc, p_probc])
                 newinf[mask]= self.I * draw
                 self.ninf[i] += np.sum(draw)
                         
@@ -376,7 +376,7 @@ class spatialSAYDR() :
         fig.tight_layout()
 
         if savefig != '' :
-            plt.savefig(folder+savefig+'_pos-day'+str(day)+ext)
+            plt.savefig(folder+savefig+'_pos-day'+str(day)+ext, dpi=200)
         plt.show()    
   
     def drawRates(self,day,lines='',ylim='',aaamaskdata=[''],savefig='',folder='output/images/') :
@@ -558,10 +558,12 @@ class spatialSAYDR() :
         self.pos = self.movepeople(self.pos)
         self.lastday = day
 
-    def simulateOnce(self) :
+    def simulateOnce(self,stoprule=15) :
         
         ''' simulates the model for q_days, to be used in conjunction
             with multiprocessing.Pool to get multiple replications quickly 
+            
+            stoprule=15: number of infections to stop counting
         '''
         
         stats = self.computeStats(0)
@@ -580,7 +582,7 @@ class spatialSAYDR() :
             if self.q_printOption >= 3:
                 self.drawPositions(day)
 
-            if np.sum(self.state==self.I)+np.sum(self.state==self.Y) <= 15:
+            if np.sum(self.state==self.I)+np.sum(self.state==self.Y) <= stoprule:
                 break
         
         if self.q_printOption>=0.5:
@@ -699,6 +701,9 @@ class spSAYDR_behav(spatialSAYDR):
             lambd = par['lambda']
             reducedContagion = b0 * np.exp(-par['lambda']*day) + bstar * (1-np.exp(-lambd*day))
         
+        elif par['type'] == 'None':
+            reducedContagion = 1
+            
         self.fracNotScared[day] = reducedContagion
         scaredcats = np.round((1-self.fracNotScared[day])*self.q_popsize)
         self.scared = (self.id<scaredcats) #strict otherwise picks id=0 when scared are 0
@@ -707,11 +712,12 @@ class spSAYDR_behav(spatialSAYDR):
       
     def aDayInTheLife(self,day):
           
+        self.savepos = np.copy(self.pos)
+
         # figure out who is scared and save their positions
         self.scaredycats(day)
 
         # move scared out of the box and far from each other
-        self.savepos = np.copy(self.pos)
         self.pos[self.scared,1] = self.q_citysize*(2*(self.id[self.scared]+1))
         
         # generate infections, deaths and recoveries
@@ -721,8 +727,9 @@ class spSAYDR_behav(spatialSAYDR):
         self.recoveries(day)      ,
                     
         # return people to their position before moving them arund 
-        self.pos[self.scared,1] =  self.savepos[self.scared,1]
-
+        #elf.pos[self.scared,1] =  self.savepos[self.scared,1]
+        self.pos = self.savepos
+        
         # move people around
         self.pos = self.movepeople(self.pos)
         self.lastday = day

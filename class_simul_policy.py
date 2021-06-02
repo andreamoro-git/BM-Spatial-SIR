@@ -9,10 +9,10 @@ Created on Sun Apr 19 18:28:27 2020
 from class_averageStats import averageStats
 import numpy as np
 import pickle,gzip
-from class_simul import contagionModel
+from class_simul import spSAYDR_behav
 import matplotlib.pyplot as plt
 
-class simul_policy(contagionModel) :
+class simul_policy(spSAYDR_behav) :
     ''' class simulating a lockdown
         shutr: shut down shutr[1]% of people i if fraction in state I >shutr[0]
     '''
@@ -20,7 +20,7 @@ class simul_policy(contagionModel) :
     def __init__(self, p_shutr, p_openr,
                  shutOnce = False,
                  *args,**kwargs,) :
-        contagionModel.__init__(self,*args,**kwargs)
+        spSAYDR_behav.__init__(self,*args,**kwargs)
         self.p_shutr = p_shutr #this is to avoid hitting exactly the threshold
         self.p_openr = p_openr
         self.shutOnce = shutOnce
@@ -30,9 +30,11 @@ class simul_policy(contagionModel) :
         self.shutid = np.arange(self.q_popsize)
         np.random.shuffle(self.shutid)
         
-        # define vecors of people shut down by govt
+        # define vectors of people shut down by govt
         self.shut = np.zeros(self.q_popsize,dtype=bool)
+        self.outside = np.ones(self.q_days)    # fraction of people outside
         self.shutdownMode = False
+        
   
     def shutdown(self,day) :
         # detect people shut down by government
@@ -72,13 +74,22 @@ class simul_policy(contagionModel) :
  
     def aDayInTheLife(self,day):
     
-        # figure out who is scared and save their positions
-        self.shutdown(day)
+        # save initial positions and figure out who is locked in
         self.savepos = np.copy(self.pos)
-        
-        # move scared out of the box
+        self.shutdown(day)
+                
+        # move locked in out of the box
         self.pos[self.shut,1] =  self.q_citysize*(2*(self.id[self.shut]+1))
         
+        # figure out who is scared and save their positions
+        self.scaredycats(day)
+
+        # move scared out of the box and far from each other
+        self.pos[self.scared,1] = self.q_citysize*(2*(self.id[self.scared]+1))
+ 
+         # compute who is outside that day for later reference
+        self.outside[day] = 1  - np.sum(self.shut | self.scared )/self.q_popsize
+
         # generate infections, deaths and recoveries
         self.infections(day)
         self.symptoms(day)
@@ -86,14 +97,41 @@ class simul_policy(contagionModel) :
         self.recoveries(day)      ,
                     
         # return people to their position before moving them arund 
-        self.pos[self.shut,1] =  self.savepos[self.shut,1]
-
+        self.pos = self.savepos
+        
         # move people around
         self.pos = self.movepeople(self.pos)
         self.lastday = day
 
           
-       
+class simul_policyByTime(simul_policy) :
+    # shut down at a specific time period defined by p_shutr[0]
+    
+    def shutdown(self,day) :
+        # detect people shut down by government
+        
+        self.shut = np.zeros(self.q_popsize,dtype=bool)
+        
+        if day>=self.p_shutr[0] :
+            self.shutdownMode = True
+        if day>=self.p_openr[0]:
+            self.shutdownMode = False
+                    
+        ## now define masks of who is staying home
+        # shut down (p_shutr[1]%) of city if asymptomatics > p_shutr[0]% 
+        if self.shutdownMode :
+            if self.p_shutr[1]==1 :
+                self.shut[:] = True
+            else:
+                lockedDown = self.p_shutr[1]*self.q_popsize
+                self.shut = (self.shutid<lockedDown)
+                    
+        if self.q_printOption>=2:
+            print('\t\t Shutdownmodes: ',self.shutdownMode)
+            
+        return 
+
+
 def simulatePool(kwargs) :
     ''' function that simulates the model once, to be used in conjunction
         with multiprocessing.Pool to get multiple replications quickly 
@@ -104,6 +142,16 @@ def simulatePool(kwargs) :
 
     return m
 
+
+def policyTimePool(kwargs) :
+    ''' function that simulates the model once, to be used in conjunction
+        with multiprocessing.Pool to get multiple replications quickly 
+    '''
+    m = simul_policyByTime(**kwargs)
+    m.simulateOnce(stoprule=0)
+    m.summaryStats(m.lastday,nondef=kwargs,savefile='output/results.txt',clear='a')
+
+    return m
 #%%  simulate 10-5 lockdown policy from base model
 if __name__ == "__main__":
 

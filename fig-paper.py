@@ -73,7 +73,7 @@ for day in range(1,m.q_days):
 
     print(m.computeStats(day,1))
     if day in printdays:
-        m.drawPositions(day,savefig='baseline',S=True,folder=imagedir,ext='.pdf')
+        m.drawPositions(day,savefig='baseline',S=True,folder=imagedir,ext='.png')
         pass
     m.aDayInTheLife(day) 
       
@@ -93,7 +93,7 @@ for day in range(1,m.q_days):
 
     print(m.computeStats(day,1))
     if day in printdays:
-        m.drawPositions(day,savefig='randomcluster',S=True,folder=imagedir,ext='.pdf')
+        m.drawPositions(day,savefig='randomcluster',S=True,folder=imagedir,ext='.png')
         pass
     m.aDayInTheLife(day) 
       
@@ -114,7 +114,7 @@ for day in range(1,m.q_days):
 
     print(m.computeStats(day,1))
     if day in printdays:
-        m.drawPositions(day,savefig='nomove',S=True,folder=imagedir,ext='.pdf')
+        m.drawPositions(day,savefig='nomove',S=True,folder=imagedir,ext='.png')
         pass
     m.aDayInTheLife(day) 
       
@@ -127,7 +127,7 @@ from class_spatialModels import spSAYDR_hetDensity
     
 mod1 = spSAYDR_hetDensity(q_lambda=1,**benchkwargs)
 mod1.drawPositions(0,{'savefig':'hetdens','folder':imagedir,'S': True, 
-                      'colors':['grey','orange','orange','red','green'], 'ext':'.pdf'}, )
+                      'colors':['grey','orange','orange','red','green'], 'ext':'.png'}, )
     
 
 #%% Statistics reported in paper, section Local Herd Immunity ( \label{sec:SIRcomp})
@@ -183,7 +183,7 @@ for idx,m in enumerate(rand) :
 
 # SIR model
 aa = SIRmodel(contRate*13.5,recRate,q_popsize=popSize,q_init=10)
-dfSIR = pd.DataFrame(aa.SIR,index=np.arange(aa.day+1),columns=['S','I','R'])
+dfSIR = pd.DataFrame(aa.SIR,index=np.arange(aa.day+1),columns=['S','I','R','L'])
 dfSIR['ILag'] = dfSIR['I'].shift()
 dfSIR['ld'] = np.log(dfSIR['I']) - np.log(dfSIR['ILag'])
 dfSIRld = np.array(dfSIR['ld'])
@@ -228,7 +228,7 @@ line_labels=['SIR',
 
 fig.legend([l1,l2,l3],bbox_to_anchor=(.62,.82), labels=line_labels, fontsize=12,framealpha=1)
 ax.set_title('Growth rate')
-ax2.set_title('Infections')
+ax2.set_title('Infected')
 
 fig.tight_layout()
 plt.savefig(imagedir+'density_contagion2.pdf')
@@ -299,7 +299,7 @@ line_labels=['Random outbreaks',
 
 fig.legend([l0,l1],line_labels, bbox_to_anchor=(.62,.88), fontsize= 12, borderaxespad=0.5,framealpha=1)
 ax.set_title('Growth rate')
-ax2.set_title('Infections')
+ax2.set_title('Infected')
 
 
 fig.tight_layout()
@@ -313,7 +313,7 @@ print('Peak active, random',np.round(max(ravg.prinf),2)
       ,'day ',np.where(max(ravg.prinf)==ravg.prinf)[0])
 avgmaxinf = np.average(list(map(lambda x: np.max(x.prtinf),b)))
 print('Steady state infected baseline', np.round(avgmaxinf,4))
-avgmaxinf2 = np.average(list(map(lambda x: np.max(x.prtinf),r)))
+avgmaxinf2 = np.average(list(map(lambda x: np.max(x.prtinf),rand)))
 print('Steady state infected random', np.round(avgmaxinf2,4))
 
 #%%  SIR model city size 
@@ -394,10 +394,10 @@ ax2.plot(np.arange(g_plotdays),bavg.prinf[0:g_plotdays],c='olive',label=msa)
 ax2.plot(np.arange(g_plotdays),b2avg.prinf[0:g_plotdays],':',c='saddlebrown',linewidth=1.9,label= ms2)
 ax2.legend(title='${R_\\infty}/{N}$', bbox_to_anchor=(.48,.22), title_fontsize=11)
 line_labels=[             '$N=1/4*$Baseline',
-             'Baseline Spatial-SIR',
+             'Baseline',
     '$N=4*$Baseline',]
 
-fig.legend([ll3,ll2,ll1],line_labels, bbox_to_anchor=(.63,.89), fontsize= 12, borderaxespad=0.5,framealpha=1)
+fig.legend([ll3,ll2,ll1],line_labels, bbox_to_anchor=(.61,.85), fontsize= 12, borderaxespad=0.5,framealpha=1)
 ax12.set_title('Spatial-SIR')
 ax2.set_title('SIR')
 
@@ -481,7 +481,7 @@ ax2.plot(np.arange(days),b6.prinf[:days],'--', color='darkorange',label =ppp)
 
 ax2.set_yticks(np.arange(0,0.17,0.04))
 
-plt.setp(l.get_title(), multialignment='center')
+plt.setp(ax.get_title(), multialignment='center')
 
 ax.set_title('Growth rate')
 ax2.set_title('Infected')
@@ -500,7 +500,7 @@ plt.savefig(imagedir+'short-density_contagion1.pdf')
 
 file1 = gzip.open(outputdir+'basesim.pickle.gz','rb')
 b = pickle.load(file1)
-bavg = averageStats(b)
+s_bavg = averageStats(b)
 file1.close()
 
 file1 = gzip.open(outputdir+'density.pickle.gz','rb')
@@ -515,8 +515,8 @@ for mod in allmods:
     if np.round(mod.q_citysize,1) == 1.4 :
         modh.append(mod)
 
-b2avg = averageStats(mod2)
-havg = averageStats(modh)
+s_b2avg = averageStats(mod2)
+s_qavg = averageStats(modh)
 
 popSize = benchkwargs['q_popsize']
 cluster = 30
@@ -548,25 +548,21 @@ sirmaxa = np.round(np.max(bavg.SIR[:,2])/(25600),2)
 sirmax2 = np.round(np.max(b2avg.SIR[:,2])/(25600*4),2)
 sirmaxh = np.round(np.max(sqavg.SIR[:,2])/(25600/4),2)
   
-
 print('Sir DAYS to peak',np.where(max(bavg.prinf)==bavg.prinf)[0]
       ,np.where(max(b2avg.prinf)==b2avg.prinf)[0],
-      np.where(max(bhavg.prinf)==bhavg.prinf)[0])
+      np.where(max(sqavg.prinf)==sqavg.prinf)[0])
 
 print('Peak active, 1*  ',np.round(max(bavg.prinf),2)
       ,'day ',np.where(max(bavg.prinf)==bavg.prinf)[0])
 print('Peak active, 2*  ',np.round(max(b2avg.prinf),2)
       ,'day ',np.where(max(b2avg.prinf)==b2avg.prinf)[0])
-print('Peak active, 1/2*',np.round(max(bhavg.prinf),2)
-      ,'day ',np.where(max(bhavg.prinf)==bhavg.prinf)[0])
+print('Peak active, 1/2*',np.round(max(sqavg.prinf),2)
+      ,'day ',np.where(max(sqavg.prinf)==sqavg.prinf)[0])
 
-avgmaxinf = np.max(bavg.prtinf)
+
 print('Steady state infected 1*  ', np.round(sirmaxa,4))
-avgmaxinf2 = np.max(b2avg.prtinf)
 print('Steady state infected 2*  ', np.round(sirmax2,4))
-avgmaxinf3 = np.max(bhavg.prtinf)
 print('Steady state infected 1/2*', np.round(sirmaxh,4))
-
 
 
 maxday=bavg.day
@@ -612,7 +608,7 @@ ax2.plot(np.arange(g_plotdays),sqavg.prinf[0:g_plotdays],':',c='saddlebrown',lin
 ax12.legend(title='${R_\\infty}/{N}$', bbox_to_anchor=(.23,.18), title_fontsize=11)
 ax2.legend(title='${R_\\infty}/{N}$', bbox_to_anchor=(.48,.22), title_fontsize=11)
 line_labels=['$2*$ density',
-             'Baseline Spatial-SIR',
+             'Baseline',
     '$1/2*$ density',]
 
 fig.legend([ll3,ll2,ll1],line_labels, bbox_to_anchor=(.6,.88), fontsize= 12, borderaxespad=0.5,framealpha=1)

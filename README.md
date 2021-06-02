@@ -152,14 +152,25 @@ Instructions to Replicators
 (Optional step) To download and regenerate calibration data (optional)
 - Run stata/importdata.do
 
-To simulate the model and generate figures:
+To simulate the model and generate figures, except Section 7:
 
 1) Run sim_base.py
 2) Run fig-shortpaper.py
 
+To generate figures for Section 7
+
+3) Run sim_estimation.py up to row 254
+4) Run sim_estimate.do in Stata
+5) Run sim_estimation.py up to row 847
+6) Run sim_estimate_policies_multitimes-pdate20.do
+7) Run sim_estimation.py
+8) Run sim_estimate_policies_multitimes.do (this generates figures in the last table)
+
 (To generate appendix figures)
-3) Run fig-appendix.py
-4) Run class_simul_policy.py
+9) Run fig-appendix.py
+10) Run class_simul_policy.py
+
+
 
 All figures are saved in output/images
 

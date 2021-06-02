@@ -15,57 +15,6 @@ from multiprocessing import Pool
 import time
 from copy import deepcopy
 
-start_time = time.time()
-outputdir = 'output/nc1-'
-
-# baseline parameters 
-# prefix nc0-: probr=.14, only A infective, rest same as submitted
-# benchkwargs = {"q_seed" : 2443,
-#     "p_proby"     : [0],
-#     "p_probr"     : [0.14],
-#     "p_probc"     : [[0,0.038130388,0,0,0]], #prob of contagion by type and state
-#     "p_probd"     : [0],
-#     "p_infradius" : 0.013016,
-#     "p_avgstep"   : 0.033993284,
-#     "p_stdstep"   : 0,
-#     "p_cluster"   : 'cluster',
-#     "q_popsize"   : 25600,
-#     "q_days"      : 300,
-#     "q_printOption" : 0.6,
-# }   
-
-# prefix nc0-: probr=.14, only A infective, rest same as submitted
-# benchkwargs = {"q_seed" : 2443,
-#     "p_proby"     : [0],
-#     "p_probr"     : [0.12987],
-#     "p_probc"     : [[0,0.038130388,0,0,0]], #prob of contagion by type and state
-#     "p_probd"     : [0],
-#     "p_infradius" : 0.013016,
-#     "p_avgstep"   : 0.033993284,
-#     "p_stdstep"   : 0,
-#     "p_cluster"   : 'cluster',
-#     "q_popsize"   : 25600,
-#     "q_days"      : 300,
-#     "q_printOption" : 1.6,
-# }   
-
-#prefix nc-: 
-#(probc,avgstep) = [0.039659132, 0.054135346]
-# (probc,avgstep) = [0.05, 0.04]
-# benchkwargs = {"q_seed" : 2443,
-#     "p_proby"     : [0],
-#     "p_probr"     : [0.14],
-#     "p_probc"     : [[0,probc,0,0,0]], #prob of contagion by type and state
-#     "p_probd"     : [0],
-#     "p_infradius" : 0.013016,
-#     "p_avgstep"   : avgstep,
-#     "p_stdstep"   : 0,
-#     "p_cluster"   : 'cluster',
-#     "q_popsize"   : 25600,
-#     "q_days"      : 300,
-#     "q_printOption" : 0.6,
-# }   
-
 prefix= 'nc5-' 
 start_time = time.time()
 outputdir = 'output/'+prefix

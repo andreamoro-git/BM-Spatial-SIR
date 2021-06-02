@@ -21,9 +21,11 @@ rename totale_positivi infect
 
 *xtline deceduti
 
+* compute growth rates (Delta/Lag)
 bys region: gen dgrowth = D.deaths/L.deaths
 bys region: gen cgrowth = D.infect/L.infect
 
+* compute moving averages
 generate moveave3 = (F1.dgrowth + dgrowth + L1.dgrowth) / 3
 generate moveave5 = (F1.dgrowth + F2.dgrowth + dgrowth + L1.dgrowth + L2.dgrowth) / 5
 generate moveave7 = (F3.dgrowth + F1.dgrowth + F2.dgrowth + dgrowth + L1.dgrowth + L2.dgrowth + L3.dgrowth) / 7

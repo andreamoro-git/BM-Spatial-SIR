@@ -69,8 +69,8 @@ class averageStats() :
         self.maxasy = np.average(list(map(lambda x: x.maxinf,m)))/self.popsize
         self.maxdays = np.average(list(map(lambda x: np.max((x.tdea,x.trec)),m)))
             
-        if self.classname != 'spatialSAYDR' and self.classname !='spSAYDR_randLoc' and self.classname!='spSAYDR_hetDensity' and self.classname != 'class_averageStats' and self.classname != 'simul_policy':
-            
+#        if self.classname != 'spatialSAYDR' and self.classname !='spSAYDR_randLoc' and self.classname!='spSAYDR_hetDensity' and self.classname != 'class_averageStats' and self.classname != 'simul_policy':
+        try:    
             self.fracNotScared = np.average(list(map(lambda x: x.fracNotScared,m)),axis=0)    
             try: 
                 self.whereInfected = np.average(list(map(lambda x: x.whereInfected,m)),axis=0)
@@ -90,7 +90,8 @@ class averageStats() :
                 self.p_oldhomesize = m[0].p_oldhomesize
             except:
                 self.p_oldhomesize = 0
-
+        except:
+            print('Class '+self.classname+' not supported for some stats')
         
     def printout(self):
         print('ha')

@@ -15,8 +15,13 @@ class SIRmodel():
         simulates a (behavioral) standard SIR model
     
     '''
-    def __init__(self,beta,gamma,behModel='',q_init=1,
-                 q_popsize=25600,printOption=0
+    def __init__(self, beta, gamma, 
+                 q_init=1, 
+                 q_popsize=25600, 
+                 behModel=False, # use behavioral adjustments?
+                 p_shutr=[0,0],  # day of lockdown, fraction locked down
+                 p_openr=[0,0],  # day of reopen, fraction put back (check??)
+                 printOption=0
                  ) :
         self.beta = beta
         self.gamma = gamma
@@ -24,7 +29,11 @@ class SIRmodel():
         self.q_popsize = q_popsize
         self.printOption = printOption
         self.q_init = q_init
-        self.SIR = np.array([[self.q_popsize-self.q_init, self.q_init, 0]])
+        self.p_shutr = p_shutr
+        self.p_openr = p_openr
+        
+        # array of susceptibles, infected, recovered, lockeddown
+        self.SIR = np.array([[self.q_popsize-self.q_init, self.q_init, 0, 0]])
         self.fracNotScared = np.array([1])
         self.shutdownMode = False
         self.simulate()
@@ -33,10 +42,12 @@ class SIRmodel():
     def simulate(self):
         
         day = 0
+        
+        # loop while susceptibles are positive and infected are less than popsize (why?)
         while np.round(self.SIR[day,1])>0 and np.round(self.SIR[day,1])<self.q_popsize:
             
             day += 1
-            if self.behModel != '':
+            if self.behModel != False:
                 beta = self.beta*self.scaredycats(day)
             else :
                 beta = self.beta
@@ -46,12 +57,28 @@ class SIRmodel():
             S = self.SIR[day-1, 0] - dI
             I = self.SIR[day-1, 1] + dI - dR
             R = self.SIR[day-1, 2] + dR
+            L = self.SIR[day-1, 3] #locked-down
+            
+            #lockedout or reopen
+            if day==self.p_shutr[0]: 
+                
+                # correct for the relative size of S
+                L = S*self.p_shutr[1] * S/self.q_popsize
+                S = S-L
+            if day==self.p_openr[0]:
+                S = S + L*self.p_openr[1]
+                L = L*(1-self.p_openr[1])
+            
+            #correction just in case
             if S<0:
                 I = I-S
                 S = 0
-            self.SIR = np.row_stack((self.SIR,[S,I,R]))
+                
+            self.SIR = np.row_stack((self.SIR, [S, I, R, L]))
+            
             if I<0:
                 break
+            
             if self.printOption>=1:
                 print(day,np.round(self.SIR[day,:],0))
                      
@@ -69,6 +96,7 @@ class SIRmodel():
         ax.plot(np.arange(maxday),plotData[:maxday,0],c='saddlebrown',label='S')
         ax.plot(np.arange(maxday),plotData[:maxday,1],c='darkorange',label='I')
         ax.plot(np.arange(maxday),plotData[:maxday,2],c='olive',label='R')
+        ax.plot(np.arange(maxday),plotData[:maxday,3],':',c='black',label='L')
         ax.legend()
         plt.show()
         
@@ -143,87 +171,20 @@ class SIRmodel():
 if __name__ == '__main__':
     
     baseline = 25600
-    cluster = 30
-    bavg = SIRmodel(.054*13.5*2,0.05,q_popsize=baseline,
+    cluster = 10
+    beta = .15 #.054*13.5,
+    delta = .02 #1/6.5
+    bavg = SIRmodel(beta, delta ,q_popsize=baseline,
                     q_init=cluster,
                     )
-    # bavg = SIRmodel(.03813*13.5*2,0.05,q_popsize=baseline,
-    #                 q_init=cluster,
-    #                 behModel = {'type':'Lockdown','p_shutr':[0.1,.9],'p_openr':[0.05,1],'p_shutOnce': False}
-    #                 )
     bavg.plot(bavg.day)
+    
+    b2 = SIRmodel(beta, delta, q_popsize=baseline,
+                    q_init=cluster, p_shutr=[20,.3], p_openr=[999,1]
+                    )
+    b2.plot(b2.day)
 
 
-#%% random matching in geo model
-if __name__ == '__main__':
-    benchkwargs = {"q_seed"      : 2443,
-        "p_probc"     : [[0,0.038130388,0,0,0]], #prob of contagion by type and state
-        "q_popsize"   : 25600,
-        "p_infradius" : 0.013016,
-        "p_avgstep"   : 0.033993284,
-        "p_stdstep"   : 0,
-        "q_printOption" : 0.6,
-        'p_cluster'   : 'cluster',
-    }
-
-    kwargs = benchkwargs.copy()
-    kwargs['p_probc'] = [[0,0.038130388,0.038130388,0,0]]
-    nboots = 10
-    nprocs = 5
-
-    iterlist = []
-    
-    # change seeds
-    for bootn in range(nboots):
-        newkw = kwargs.copy()
-        newkw['q_seed'] = kwargs['q_seed'] + bootn
-        iterlist.append((newkw)) 
-    
-    # spawn nboots processes, nprocs at once    
-    pool = Pool(processes=nprocs)
-    allRandmodels = pool.map(simulateRandPool,(iterlist))
-    pool.close()
-    pool.join()
-    
-    list(map(lambda x: delattr(x,'pos'),allRandmodels))
-    file = open('output/allrandmodels.pickle','wb')
-    pickle.dump(allRandmodels,file)
-    
-#%% random matching in geo model 6*density and prob
-if __name__ == '__main__':
-    benchkwargs = {"q_seed"      : 2443,
-        "p_probc"     : [[0,0.038130388,0,0,0]], #prob of contagion by type and state
-        "q_popsize"   : 25600,
-        "p_infradius" : 0.013016,
-        "p_avgstep"   : 0.033993284,
-        "p_stdstep"   : 0,
-        "q_printOption" : 0.6,
-        'p_cluster'   : 'cluster',
-    }
-
-    kwargs = benchkwargs.copy()
-    kwargs['p_probc'] = 6*np.array([[0,0.038130388,0.038130388,0,0]])
-    kwargs['q_citysize'] = 1*np.sqrt(6)
-    nboots = 10
-    nprocs = 5
-
-    iterlist = []
-    
-    # change seeds
-    for bootn in range(nboots):
-        newkw = kwargs.copy()
-        newkw['q_seed'] = kwargs['q_seed'] + bootn
-        iterlist.append((newkw)) 
-    
-    # spawn nboots processes, nprocs at once    
-    pool = Pool(processes=nprocs)
-    allRandmodels = pool.map(simulateRandPool,(iterlist))
-    pool.close()
-    pool.join()
-    
-    list(map(lambda x: delattr(x,'pos'),allRandmodels))
-    file = open('output/allrandmodelsbig.pickle','wb')
-    pickle.dump(allRandmodels,file)
     
 #%% double cont rate and 2* density in benchmark plus
 if __name__ == '__main__':
