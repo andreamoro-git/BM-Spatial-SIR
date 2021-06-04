@@ -469,36 +469,37 @@ if __name__ == '__main__':
     print('Time spent ', time.time()-start_time)
 
 
-#%%
+    #%%
+    
+    prefix= 'nc5-' 
+    start_time = time.time()
+    outputdir = 'output/'+prefix
+    imagedir = 'output/images/'+prefix
+    
+    
+    
+    estbenchkwargs = {
+        "q_seed" : 2443,
+        "p_proby"     : [0.0],
+        "p_probr"     : [1/6.5],
+        "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
+        "p_probd"     : [0],
+        "p_infradius" : 0.013016,
+        "p_avgstep"   : 0.034,
+        "p_stdstep"   : 0,
+        "p_cluster"   : 'cluster',
+        "q_popsize"   : 25600,
+        "q_days"      : 81,
+        "q_printOption" : 2.6,
+        'g_maxinf'    : 1,
+        'p_shutr'     : [20,0.30],
+        'p_openr'     : [999,1],
+    }  
 
-prefix= 'nc5-' 
-start_time = time.time()
-outputdir = 'output/'+prefix
-imagedir = 'output/images/'+prefix
 
+    #%% Spatial-SIR, generate data from several densities, no benhavior
 
-
-estbenchkwargs = {
-    "q_seed" : 2443,
-    "p_proby"     : [0.0],
-    "p_probr"     : [1/6.5],
-    "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
-    "p_probd"     : [0],
-    "p_infradius" : 0.013016,
-    "p_avgstep"   : 0.034,
-    "p_stdstep"   : 0,
-    "p_cluster"   : 'cluster',
-    "q_popsize"   : 25600,
-    "q_days"      : 81,
-    "q_printOption" : 2.6,
-    'g_maxinf'    : 1,
-    'p_shutr'     : [20,0.30],
-    'p_openr'     : [999,1],
-}  
-
-
-#%% Spatial-SIR, generate data from several densities, no benhavior
-
+    from class_simul_policy import policyTimePool
     estbenchkwargs = {
         "q_seed" : 2443,
         "p_proby"     : [0.0],
@@ -547,6 +548,8 @@ estbenchkwargs = {
 
 #%% Spatial-SIR, densities only, no behavior, data save
 
+    import pandas as pd
+    
     file = gzip.open(outputdir+'dens-20-80-25pc.gz','rb')
     allRandmodels = pickle.load(file)
     file.close()

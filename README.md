@@ -154,7 +154,7 @@ Instructions to Replicators
 
 To simulate the model and generate figures:
 
-1) Run python sim_base.py
+1) Run python sim_paper.py
 2) Run stata sim_estimate.do in Stata
 3) Run stata sim_estimate_policies_multitimes-pdate20.do in Stata
 4) Run stata sim_estimate_policies_multitimes.do (this generates latex code for the last table)
