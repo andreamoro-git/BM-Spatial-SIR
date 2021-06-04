@@ -214,10 +214,12 @@ List of figures
 | 16                | fig-paper.py             | 1339        |  figuresdir/nc5-prediction_nobias.pdf
 | 17                | fig-paper.py             | 1384        |  figuresdir/nc5-prediction_withbias.pdf
 
-List of figures
+List of Tables
 ---------------------------
-Table 1: manually generated
-Table 2: stata code sim_estimate_policies_multitimes.do row # 160
+| Table        #    | Program                           | Line Number | Notes
+|-------------------|-----------------------------------|-------------|-----------------------------------------------
+| 1                 |                                   |             | manually generated
+| 2                 |sim_estimate_policies_multitimes.do| 160|
 
 --
 
