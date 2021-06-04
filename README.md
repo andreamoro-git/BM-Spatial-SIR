@@ -63,7 +63,7 @@ This code has been run on a MacBook Pro, 1,7 GHz Quad-Core Intel Core i7 running
 
 - (optional) The python code was run using the IDE Spyder version 4.2.0
 
-- (optional) The code used to download and generate calibration data (provided in the distribution) was run with Stata 14.
+- The code used to download and generate calibration data (provided in the distribution) and to generate data for figures and table for Section 7 was run with Stata 14.
 
 ### Memory and Runtime Requirements
 
@@ -71,7 +71,7 @@ Most simulations take minutes to run on a standard (2020) desktop. The simulatio
 
 Simulation data is saved in pickle format under output/
 
-Figures from such data is generated in seconds
+Figures from such data are generated in seconds (each)
 
 #### Summary
 
@@ -114,7 +114,7 @@ Files marked with \* contain modules imported by other files and are not meant t
 
 - input/ directory containing input data
 
-- stata/ directory containing stata code to generate input data
+- stata/ directory containing stata code to generate input data and estimation of simulated data
 
 - output/ empty directory, storing generated simulation data
 
@@ -132,7 +132,7 @@ We kindly ask academics using or adapting this code in scientific publications t
 
   BibTeX entry:
 
-  ```
+```
   @misc{bisinmoro2020geo,
     title = "Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
     author = "Bisin, Alberto and Moro, Andrea", institution = "National Bureau of Economic Research",
@@ -149,77 +149,69 @@ We kindly ask academics using or adapting this code in scientific publications t
 Instructions to Replicators
 ---------------------------
 
-(Optional step) To download and regenerate calibration data (optional)
+(Optional step) To download and regenerate calibration data
 - Run stata/importdata.do
 
-To simulate the model and generate figures, except Section 7:
+To simulate the model and generate figures:
 
-1) Run sim_base.py
-2) Run fig-shortpaper.py
-
-To generate figures for Section 7
-(apologies... this has not been cleaned up)
-3) Run sim_estimation.py up to row 254
-4) Run sim_estimate.do in Stata
-5) Run sim_estimate_policies_multitimes-pdate20.do in Stata
-6) Run sim_estimate_policies_multitimes.do (this generates latex code for the last table)
-7) Run fig-paper.py
+1) Run python sim_base.py
+2) Run stata sim_estimate.do in Stata
+3) Run stata sim_estimate_policies_multitimes-pdate20.do in Stata
+4) Run stata sim_estimate_policies_multitimes.do (this generates latex code for the last table)
+5) Run python fig-paper.py (generates all figures)
 
 (To generate appendix figures)
-
-8) Run fig-appendix.py
-9) Run class_simul_policy.py
-
-
+6) Run python class_simul_policy.py
+7) Run python fig-appendix.py
 
 All figures are saved in output/images
 
 List of figures
 ---------------------------
 
-| Figure       #    | Program                  | Line Number | Output file
-|-------------------|--------------------------|-------------|-----------------------------------------------
-| 1                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day10.png
-| 1                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day20.png
-| 1                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day30.png
-| 2                 | fig-paper.py             | 234         |  figuresdir/nc5-density_contagion2.pdf
-| 3                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day10.png
-| 3                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day20.png
-| 3                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day30.png
-| 3                 | fig-paper.py             | 96          |  figuresdir/nc5-randomcluster_pos-day10.png
-| 3                 | fig-paper.py             | 96          |  figuresdir/nc5-randomcluster_pos-day20.png
-| 3                 | fig-paper.py             | 96          |  figuresdir/nc5-randomcluster_pos-day30.png
-| 4                 | fig-paper.py             | 307         |  figuresdir/nc5-short-random-rates.pdf
-| 5                 | fig-paper.py             | 405         |  figuresdir/nc5-SIR-citysize-rates.pdf
-| 6                 | fig-paper.py             | 496         |  figuresdir/nc5-short-density_contagion1.pdf
-| 7                 | fig-paper.py             | 619         |  figuresdir/nc5-short-3densities.pdf
-| 8                 | fig-paper.py             | 657         |  figuresdir/nc5-hetdens1.pdf
-| 8                 | fig-paper.py             | 129         |  figuresdir/nc5-hetdens_pos-day0.png
-| 9                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day10.png
-| 9                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day20.png
-| 9                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day30.png
-| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day10.png
-| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day20.png
-| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day30.png
-| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day50.png
-| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day150.png
-| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day250.png
-| 10                | fig-paper.py             | 774         |  figuresdir/nc5-short-nomovement-rateslarge.pdf
-| 11                | fig-paper.py             | 807         |  figuresdir/nc5-SIR_beh_responses.pdf
-| 12                | fig-paper.py             | 891         |  figuresdir/nc5-SIR_beh.pdf
-| 13                | fig-paper.py             | 960         |  figuresdir/nc5-SIR_beh_local.pdf
-| 14                | fig-paper.py             | 989         |  figuresdir/nc5-est_densitybetas.pdf
-| 15                | fig-paper.py             | 1138        |  figuresdir/nc5-estimatedbeta_policies.pdf
-| 15                | fig-paper.py             | 1287        |  figuresdir/nc5-estimatedbeta_beh-policies.pdf
-| 16                | fig-paper.py             | 1339        |  figuresdir/nc5-prediction_nobias.pdf
-| 17                | fig-paper.py             | 1384        |  figuresdir/nc5-prediction_withbias.pdf
+| Figure # | Program      | Line Number | Output file
+|------- --|--------------|-------------|-----------------------------------------------
+| 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
+| 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
+| 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
+| 2        | fig-paper.py | 234         | figuresdir/nc5-density_contagion2.pdf
+| 3        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
+| 3        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
+| 3        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
+| 3        | fig-paper.py | 96          | figuresdir/nc5-randomcluster_pos-day10.png
+| 3        | fig-paper.py | 96          | figuresdir/nc5-randomcluster_pos-day20.png
+| 3        | fig-paper.py | 96          | figuresdir/nc5-randomcluster_pos-day30.png
+| 4        | fig-paper.py | 307         | figuresdir/nc5-short-random-rates.pdf
+| 5        | fig-paper.py | 405         | figuresdir/nc5-SIR-citysize-rates.pdf
+| 6        | fig-paper.py | 496         | figuresdir/nc5-short-density_contagion1.pdf
+| 7        | fig-paper.py | 619         | figuresdir/nc5-short-3densities.pdf
+| 8        | fig-paper.py | 657         | figuresdir/nc5-hetdens1.pdf
+| 8        | fig-paper.py | 129         | figuresdir/nc5-hetdens_pos-day0.png
+| 9        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
+| 9        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
+| 9        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
+| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day10.png
+| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day20.png
+| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day30.png
+| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day50.png
+| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day150.png
+| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day250.png
+| 10       | fig-paper.py | 774         | figuresdir/nc5-short-nomovement-rateslarge.pdf
+| 11       | fig-paper.py | 807         | figuresdir/nc5-SIR_beh_responses.pdf
+| 12       | fig-paper.py | 891         | figuresdir/nc5-SIR_beh.pdf
+| 13       | fig-paper.py | 960         | figuresdir/nc5-SIR_beh_local.pdf
+| 14       | fig-paper.py | 989         | figuresdir/nc5-est_densitybetas.pdf
+| 15       | fig-paper.py | 1138        | figuresdir/nc5-estimatedbeta_policies.pdf
+| 15       | fig-paper.py | 1287        | figuresdir/nc5-estimatedbeta_beh-policies.pdf
+| 16       | fig-paper.py | 1339        | figuresdir/nc5-prediction_nobias.pdf
+| 17       | fig-paper.py | 1384        | figuresdir/nc5-prediction_withbias.pdf
 
 List of Tables
 ---------------------------
-| Table        #    | Program                           | Line Number | Notes
-|-------------------|-----------------------------------|-------------|-----------------------------------------------
-| 1                 |                                   |             | manually generated
-| 2                 |sim_estimate_policies_multitimes.do| 160|
+| Table # | Program                           | Line Number | Notes
+|---------|-----------------------------------|-------------|-----------------------------------------------
+| 1       |                                   |             | manually generated
+| 2       |sim_estimate_policies_multitimes.do| 160         |
 
 --
 
