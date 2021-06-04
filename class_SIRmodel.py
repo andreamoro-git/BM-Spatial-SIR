@@ -3,7 +3,6 @@
 """
 Created on Thu May 14 23:28:30 2020
 
-@author: moroa
 """
 import numpy as np
 import matplotlib.pyplot as plt

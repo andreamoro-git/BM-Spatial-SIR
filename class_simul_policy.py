@@ -3,7 +3,6 @@
 """
 Created on Sun Apr 19 18:28:27 2020
 
-@author: moroa
 """
 
 from class_averageStats import averageStats
