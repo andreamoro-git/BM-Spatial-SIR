@@ -106,7 +106,7 @@ Files marked with \* contain modules imported by other files and are not meant t
 
 - sim-paper.py contains all code used to run simulations of the spatial_SIR. All simulation data generated in sim_base is saved in gzipped pickle format in output/ The file contains lists of objects corresponding to the estimated model, each object is one replication of a model simulation
 
-- fig-paper.py contains all code used to generate the figures in the paper
+- fig-paper.py    contains all code used to generate the figures in the paper
 
 - sim-appendix.py code to run simulations of spatial_SIR models necessary to generate appendix figures
 
@@ -177,13 +177,46 @@ All figures are saved in output/images
 List of figures
 ---------------------------
 
-| Figure/Table #    | Program                  | Line Number | Output file                      | Note                            |
-|-------------------|--------------------------|-------------|----------------------------------|---------------------------------|
+| Figure       #    | Program                  | Line Number | Output file
+|-------------------|--------------------------|-------------|-----------------------------------------------
+| 1                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day10.png
+| 1                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day20.png
+| 1                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day30.png
+| 2                 | fig-paper.py             | 234         |  figuresdir/nc5-density_contagion2.pdf
+| 3                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day10.png
+| 3                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day20.png
+| 3                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day30.png
+| 3                 | fig-paper.py             | 96          |  figuresdir/nc5-randomcluster_pos-day10.png
+| 3                 | fig-paper.py             | 96          |  figuresdir/nc5-randomcluster_pos-day20.png
+| 3                 | fig-paper.py             | 96          |  figuresdir/nc5-randomcluster_pos-day30.png
+| 4                 | fig-paper.py             | 307         |  figuresdir/nc5-short-random-rates.pdf
+| 5                 | fig-paper.py             | 405         |  figuresdir/nc5-SIR-citysize-rates.pdf
+| 6                 | fig-paper.py             | 496         |  figuresdir/nc5-short-density_contagion1.pdf
+| 7                 | fig-paper.py             | 619         |  figuresdir/nc5-short-3densities.pdf
+| 8                 | fig-paper.py             | 657         |  figuresdir/nc5-hetdens1.pdf
+| 8                 | fig-paper.py             | 129         |  figuresdir/nc5-hetdens_pos-day0.png
+| 9                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day10.png
+| 9                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day20.png
+| 9                 | fig-paper.py             | 76          |  figuresdir/nc5-baseline_pos-day30.png
+| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day10.png
+| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day20.png
+| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day30.png
+| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day50.png
+| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day150.png
+| 9                 | fig-paper.py             | 117         |  figuresdir/nc5-nomove_pos-day250.png
+| 10                | fig-paper.py             | 774         |  figuresdir/nc5-short-nomovement-rateslarge.pdf
+| 11                | fig-paper.py             | 807         |  figuresdir/nc5-SIR_beh_responses.pdf
+| 12                | fig-paper.py             | 891         |  figuresdir/nc5-SIR_beh.pdf
+| 13                | fig-paper.py             | 960         |  figuresdir/nc5-SIR_beh_local.pdf
+| 14                | fig-paper.py             | 989         |  figuresdir/nc5-est_densitybetas.pdf
+| 15                | fig-paper.py             | 1138        |  figuresdir/nc5-estimatedbeta_policies.pdf
+| 15                | fig-paper.py             | 1287        |  figuresdir/nc5-estimatedbeta_beh-policies.pdf
+| 16                | fig-paper.py             | 1339        |  figuresdir/nc5-prediction_nobias.pdf
+| 17                | fig-paper.py             | 1384        |  figuresdir/nc5-prediction_withbias.pdf
 
-please refer to latex files under \latex for figure names and search code for that name
-(note: bib and style files are missing therefore these files are reproduced here only fore reference and not for compilation)
+Table 2: sim_estimate_policies_multitimes row # 160
 
----
+--
 
 ## Acknowledgements
 
