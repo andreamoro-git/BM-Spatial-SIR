@@ -161,15 +161,14 @@ To generate figures for Section 7
 (apologies... this has not been cleaned up)
 3) Run sim_estimation.py up to row 254
 4) Run sim_estimate.do in Stata
-5) Run sim_estimation.py up to row 847
-6) Run sim_estimate_policies_multitimes-pdate20.do in Stata
-7) Run sim_estimation.py
-8) Run sim_estimate_policies_multitimes.do (this generates figures in the last table)
+5) Run sim_estimate_policies_multitimes-pdate20.do in Stata
+6) Run sim_estimate_policies_multitimes.do (this generates latex code for the last table)
+7) Run fig-paper.py
 
 (To generate appendix figures)
 
-9) Run fig-appendix.py
-10) Run class_simul_policy.py
+8) Run fig-appendix.py
+9) Run class_simul_policy.py
 
 
 

@@ -27,6 +27,7 @@ drop `drop'
 
 tab density
 tab density npi_date
+
 *generate a "fake" sample with one half cities
 generate random = runiform()
 egen randcity = mean(random), by(naics)
@@ -65,6 +66,7 @@ xtreg active i.t treated##c.density, fe
 scalar acall = e(ll)
 regsave using results, addlabel(Outcome, Active, Model, Baselineint, Specification, True) append
 
+stop
 
 // no interaction
 xtreg growthi i.t treated if mysample==1, fe

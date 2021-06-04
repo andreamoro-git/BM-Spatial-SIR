@@ -467,4 +467,326 @@ if __name__ == '__main__':
     file.close()
     
     print('Time spent ', time.time()-start_time)
+
+
+#%%
+
+prefix= 'nc5-' 
+start_time = time.time()
+outputdir = 'output/'+prefix
+imagedir = 'output/images/'+prefix
+
+
+
+estbenchkwargs = {
+    "q_seed" : 2443,
+    "p_proby"     : [0.0],
+    "p_probr"     : [1/6.5],
+    "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
+    "p_probd"     : [0],
+    "p_infradius" : 0.013016,
+    "p_avgstep"   : 0.034,
+    "p_stdstep"   : 0,
+    "p_cluster"   : 'cluster',
+    "q_popsize"   : 25600,
+    "q_days"      : 81,
+    "q_printOption" : 2.6,
+    'g_maxinf'    : 1,
+    'p_shutr'     : [20,0.30],
+    'p_openr'     : [999,1],
+}  
+
+
+#%% Spatial-SIR, generate data from several densities, no benhavior
+
+    estbenchkwargs = {
+        "q_seed" : 2443,
+        "p_proby"     : [0.0],
+        "p_probr"     : [1/6.5],
+        "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
+        "p_probd"     : [0],
+        "p_infradius" : 0.013016,
+        "p_avgstep"   : 0.034,
+        "p_stdstep"   : 0,
+        "p_cluster"   : 'cluster',
+        "q_popsize"   : 25600,
+        "q_days"      : 80,
+        "q_printOption" : 0.6,
+        'g_maxinf'    : 1,
+        'p_shutr'     : [20,0.30],
+        'p_openr'     : [999,1],
+        'behModel'    : {'type': 'None'}
+    }  
     
+    nboots = 5
+    nprocs = 10
+    
+    iterlist = []
+    
+    # change seeds
+    for citysize in (1/np.sqrt(np.append(np.arange(.5,.6,.02),np.arange(.6,1.6,.1)))):
+        for shutdown in ( [20, 0.25], [999, 0] ) :
+            for bootn in range(nboots):
+                newkw = estbenchkwargs.copy()
+                newkw['q_citysize'] = citysize
+                newkw['p_shutr'] = shutdown
+                newkw['q_seed'] = estbenchkwargs['q_seed'] + bootn
+                iterlist.append((newkw)) 
+    
+    # spawn nboots processes, nprocs at once    
+    pool = Pool(processes=nprocs)
+    allRandmodels = pool.map(policyTimePool,(iterlist))
+    pool.close()
+    pool.join()
+          
+    list(map(lambda x: delattr(x,'pos'),allRandmodels))
+    
+    file = gzip.open(outputdir+'dens-20-80-25pc.gz','wb')
+    pickle.dump(allRandmodels,file)
+    file.close()
+
+#%% Spatial-SIR, densities only, no behavior, data save
+
+    file = gzip.open(outputdir+'dens-20-80-25pc.gz','rb')
+    allRandmodels = pickle.load(file)
+    file.close()
+
+    moddata = pd.DataFrame()
+    for idx, model in enumerate(allRandmodels):
+        modeldf = pd.DataFrame([idx]*model.q_days,columns=['naics'])
+        modeldf['active']= model.nstates[:,1]
+        modeldf['susceptible'] = model.nstates[:,0]
+        modeldf['citysize'] = model.q_citysize
+        modeldf['total'] = model.nstates[-1,1] + model.nstates[-1,4]
+        modeldf['density'] = model.q_popsize/(model.q_citysize**2)*1/benchkwargs['q_popsize']
+        modeldf['q_popsize'] = model.q_popsize
+        modeldf['npi_date']= model.p_shutr[0]
+        modeldf['npi_size']= model.p_shutr[1]
+        modeldf['outside']= model.outside
+        modeldf['bootn']= model.q_seed
+        moddata = moddata.append(modeldf)
+        
+    moddata.to_csv(outputdir+'dens-20-80-25pc.csv',index_label='t')
+ 
+#%% Spatial-SIR, different densities with behavior
+
+    from class_simul_policy import policyTimePool
+    
+    benchkwargs = {
+        "q_seed" : 2443,
+        "p_proby"     : [0.0],
+        "p_probr"     : [1/6.5],
+        "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
+        "p_probd"     : [0],
+        "p_infradius" : 0.013016,
+        "p_avgstep"   : 0.034,
+        "p_stdstep"   : 0,
+        "p_cluster"   : 'cluster',
+        "q_popsize"   : 25600,
+        "q_days"      : 80,
+        "q_printOption" : 0.6,
+        'g_maxinf'    : 1,
+        'p_shutr'     : [20,0.25],
+        'p_openr'     : [999,0],
+        'behModel'    : {'type': 'Lones','phi': 0.01}
+    }  
+    
+    kwargs = benchkwargs.copy()
+    nboots = 5
+    nprocs = 10
+    
+    iterlist = []
+    
+    # change seeds
+    for citysize in (1/np.sqrt(np.append(np.arange(.5,.6,.02),np.arange(.6,1.6,.1)))):
+        for shutdown in ( [20, 0.25], [999, 0] ) :
+            for bootn in range(nboots):
+                newkw = benchkwargs.copy()
+                newkw['q_citysize'] = citysize
+                newkw['p_shutr'] = shutdown
+                newkw['q_seed'] = kwargs['q_seed'] + bootn
+                iterlist.append((newkw)) 
+    
+    # spawn nboots processes, nprocs at once    
+    pool = Pool(processes=nprocs)
+    allRandmodels = pool.map(policyTimePool,(iterlist))
+    pool.close()
+    pool.join()
+          
+    list(map(lambda x: delattr(x,'pos'),allRandmodels))
+    
+    file = gzip.open(outputdir+'dens-beh_p-20-80-25pc.gz','wb')
+    pickle.dump(allRandmodels,file)
+    file.close()
+    
+#   create csv data
+    file = gzip.open(outputdir+'dens-beh_p-20-80-25pc.gz','rb')
+    allRandmodels = pickle.load(file)
+    file.close()
+    
+    moddata = pd.DataFrame()
+    for idx, model in enumerate(allRandmodels):
+        modeldf = pd.DataFrame([idx]*model.q_days,columns=['naics'])
+        modeldf['active']= model.nstates[:,1]
+        modeldf['susceptible'] = model.nstates[:,0]
+        modeldf['total'] = model.nstates[-1,1] + model.nstates[-1,4]
+        modeldf['citysize'] = model.q_citysize
+        modeldf['density'] = model.q_popsize/(model.q_citysize**2)*1/benchkwargs['q_popsize']
+        modeldf['q_popsize'] = model.q_popsize
+        modeldf['bootn']= model.q_seed
+        modeldf['outside']= model.outside
+        modeldf['npi_date'] = model.p_shutr[0]
+        modeldf['npi_size']= model.p_shutr[1]
+
+        moddata = moddata.append(modeldf)
+      
+    moddata.to_csv(outputdir+'dens-beh_p-20-80-25pc.csv',index_label='t')
+
+#%% different densities without behavior, policies at different t
+
+    from class_simul_policy import policyTimePool
+    
+    benchkwargs = {
+        "q_seed" : 2443,
+        "p_proby"     : [0.0],
+        "p_probr"     : [1/6.5],
+        "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
+        "p_probd"     : [0],
+        "p_infradius" : 0.013016,
+        "p_avgstep"   : 0.034,
+        "p_stdstep"   : 0,
+        "p_cluster"   : 'cluster',
+        "q_popsize"   : 25600,
+        "q_days"      : 80,
+        "q_printOption" : 0.6,
+        'g_maxinf'    : 1,
+        'p_shutr'     : [20,0.25],
+        'p_openr'     : [999,1],
+        'behModel'    : {'type': 'None'}
+    }  
+    
+    kwargs = benchkwargs.copy()
+    nboots = 5
+    nprocs = 10
+    
+    iterlist = []
+    
+    # change seeds
+    for citysize in (1/np.sqrt(np.arange(.5, 1.6, .5))):
+        for shutdate in (15,40,999) :
+            for shutdown in ( [shutdate, 0.25], [999, 0] ) :
+                newkw = benchkwargs.copy()
+                newkw['q_citysize'] = citysize
+                newkw['p_shutr'] = shutdown
+                #newkw['q_seed'] = kwargs['q_seed'] + bootn
+                iterlist.append((newkw)) 
+    
+    # spawn nboots processes, nprocs at once    
+    pool = Pool(processes=nprocs)
+    allRandmodels2 = pool.map(policyTimePool,(iterlist))
+    pool.close()
+    pool.join()
+          
+    list(map(lambda x: delattr(x,'pos'),allRandmodels2))
+    
+    file = gzip.open(outputdir+'dens-times-25pc.gz','wb')
+    pickle.dump(allRandmodels2,file)
+    file.close()
+    
+#%% create csv data
+    file = gzip.open(outputdir+'dens-times-25pc.gz','rb')
+    allRandmodels = pickle.load(file)
+    file.close()
+    
+    moddata = pd.DataFrame()
+    for idx, model in enumerate(allRandmodels):
+        modeldf = pd.DataFrame([idx]*model.q_days,columns=['naics'])
+        modeldf['active']= model.nstates[:,1]
+        modeldf['susceptible'] = model.nstates[:,0]
+        modeldf['citysize'] = model.q_citysize
+        modeldf['total'] = model.nstates[-1,1] + model.nstates[-1,4]
+        modeldf['density'] = model.q_popsize/(model.q_citysize**2)*1/benchkwargs['q_popsize']
+        modeldf['q_popsize'] = model.q_popsize
+        modeldf['bootn']= model.q_seed
+        modeldf['outside']= model.outside
+        modeldf['npi_date'] = model.p_shutr[0]
+        modeldf['npi_size']= model.p_shutr[1]
+        moddata = moddata.append(modeldf)
+      
+    moddata.to_csv(outputdir+'dens-times-25pc.csv',index_label='t')
+
+
+
+#%% different densities with behavior, policies at different t
+
+    from class_simul_policy import policyTimePool
+    
+    benchkwargs = {
+        "q_seed" : 2443,
+        "p_proby"     : [0.0],
+        "p_probr"     : [1/6.5],
+        "p_probc"     : [[0, 0.054, 0, 0, 0]], #prob of contagion by type and state
+        "p_probd"     : [0],
+        "p_infradius" : 0.013016,
+        "p_avgstep"   : 0.034,
+        "p_stdstep"   : 0,
+        "p_cluster"   : 'cluster',
+        "q_popsize"   : 25600,
+        "q_days"      : 80,
+        "q_printOption" : 0.6,
+        'g_maxinf'    : 1,
+        'p_shutr'     : [20,0.25],
+        'p_openr'     : [999,1],
+        'behModel'    : {'type': 'Lones','phi': 0.01}
+    }  
+    
+    kwargs = benchkwargs.copy()
+    nboots = 5
+    nprocs = 10
+    
+    iterlist = []
+    
+    # change seeds
+    for citysize in (1/np.sqrt(np.arange(.5, 1.6, .1))):
+        for shutdate in np.arange(15,40,5) :
+            for shutdown in ( [shutdate, 0.25], [999, 0] ) :
+                newkw = benchkwargs.copy()
+                newkw['q_citysize'] = citysize
+                newkw['p_shutr'] = shutdown
+                #newkw['q_seed'] = kwargs['q_seed'] + bootn
+                iterlist.append((newkw)) 
+    
+    # spawn nboots processes, nprocs at once    
+    pool = Pool(processes=nprocs)
+    allRandmodels2 = pool.map(policyTimePool,(iterlist))
+    pool.close()
+    pool.join()
+          
+    list(map(lambda x: delattr(x,'pos'),allRandmodels2))
+    
+    file = gzip.open(outputdir+'dens-beh_p-times-25pc.gz','wb')
+    pickle.dump(allRandmodels2,file)
+    file.close()
+    
+#%% create csv data
+    file = gzip.open(outputdir+'dens-beh_p-times-25pc.gz','rb')
+    allRandmodels = pickle.load(file)
+    file.close()
+    
+    moddata = pd.DataFrame()
+    for idx, model in enumerate(allRandmodels):
+        modeldf = pd.DataFrame([idx]*model.q_days,columns=['naics'])
+        modeldf['active']= model.nstates[:,1]
+        modeldf['susceptible'] = model.nstates[:,0]
+        modeldf['citysize'] = model.q_citysize
+        modeldf['total'] = model.nstates[-1,1] + model.nstates[-1,4]
+        modeldf['density'] = model.q_popsize/(model.q_citysize**2)*1/benchkwargs['q_popsize']
+        modeldf['q_popsize'] = model.q_popsize
+        modeldf['bootn']= model.q_seed
+        modeldf['outside']= model.outside
+        modeldf['npi_date'] = model.p_shutr[0]
+        modeldf['npi_size']= model.p_shutr[1]
+        moddata = moddata.append(modeldf)
+      
+    moddata.to_csv(outputdir+'dens-beh_p-times-25pc.csv',index_label='t')
+

@@ -296,7 +296,6 @@ gen treated = 0
 replace treated = 1 if npi_date==20 & t>=20
 
 
-
 xtreg growthi i.t treated##c.density if mysample==1, fe
 scalar g0 = e(ll)
 regsave using results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) replace

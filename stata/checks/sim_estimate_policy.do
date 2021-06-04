@@ -62,7 +62,7 @@ predict prgr
 summ prgr growthi
 summ prgr growthi if mysample==1
 sum prgr growthi if mysample==0 & t>20
-stop
+
 
 xtreg growthi i.t treated, fe
 regsave using results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append

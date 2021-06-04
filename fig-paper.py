@@ -529,13 +529,13 @@ sqavg = SIRmodel(contRate*13.5/2, recRate, q_popsize=popSize/4, q_init=cluster)
 
 print('Sir DAYS to peak',np.where(max(bavg.prinf)==bavg.prinf)[0]
       ,np.where(max(b2avg.prinf)==b2avg.prinf)[0],
-      np.where(max(havg.prinf)==havg.prinf)[0])
+      np.where(max(sqavg.prinf)==sqavg.prinf)[0])
 print('Peak active, 1*',np.round(max(bavg.prinf),2)
       ,'day ',np.where(max(bavg.prinf)==bavg.prinf)[0])
 print('Peak active, 2*',np.round(max(b2avg.prinf),2)
       ,'day ',np.where(max(b2avg.prinf)==b2avg.prinf)[0])
-print('Peak active, 1/2*',np.round(max(havg.prinf),2)
-      ,'day ',np.where(max(havg.prinf)==havg.prinf)[0])
+print('Peak active, 1/2*',np.round(max(sqavg.prinf),2)
+      ,'day ',np.where(max(sqavg.prinf)==sqavg.prinf)[0])
 
 avgmaxinf = np.round(np.max(b[0].prtinf),2)
 avgmaxinf2 = np.round(np.max(mod2[0].prtinf),2)
@@ -592,9 +592,9 @@ s_bavg.prtinf[s_bavg.minlastday:] = s_bavg.prtinf[s_bavg.minlastday]
    
 #spatial SIR
 
-ll3 = ax12.plot(np.arange(g_plotdays),s_qavg.prinf[0:g_plotdays],'--',c='darkorange',label=avgmaxinf2)[0]
+ll3 = ax12.plot(np.arange(g_plotdays),s_b2avg.prinf[0:g_plotdays],'--',c='darkorange',label=avgmaxinf2)[0]
 ll2 = ax12.plot(np.arange(g_plotdays),s_bavg.prinf[0:g_plotdays],c='olive',label=avgmaxinf)[0]
-ll1 = ax12.plot(np.arange(g_plotdays),s_b2avg.prinf[0:g_plotdays],':',c='saddlebrown',linewidth=1.9, label=avgmaxinf3)[0]
+ll1 = ax12.plot(np.arange(g_plotdays),s_qavg.prinf[0:g_plotdays],':',c='saddlebrown',linewidth=1.9, label=avgmaxinf3)[0]
 
 #ax12.set_title(title='Infected')
 g_plotdays = 70
@@ -723,11 +723,11 @@ ax.set_ylim(-0.2,0.4)
 ax2.set_ylim(0,0.17)
 l1=ax2.plot(np.arange(0,lastday),bavg.prinf[0:lastday],color='olive',label ='Baseline, '+qq1)[0]
 l2=ax2.plot(np.arange(0,lastday),b20[4:lastday+4],'--', color='darkorange',label ='20\% speed, '+pp3)[0]
-l3=ax2.plot(np.arange(0,lastday),b0[4:lastday+4],'--', color='saddlebrown',label ='No movement, ' + pp2)[0]
+l3=ax2.plot(np.arange(0,lastday),b0[4:lastday+4],':', color='saddlebrown',label ='No movement, ' + pp2)[0]
 
 ax2.set_yticks(np.arange(0,0.17,0.04))
 
-plt.setp(l.get_title(), multialignment='center')
+#plt.setp(l.get_title(), multialignment='center')
 
 # ax.set_title('Growth rate')
 ax2.set_title('Infected')
@@ -960,3 +960,425 @@ fig.tight_layout()
 plt.savefig(imagedir+'SIR_beh_local.pdf')
 
  
+#%% Figure comparing estimated betas in baseline and behavioral with real beta
+
+#   Before doing this, run sim_estimate_dens.do in stata to generate densbetas.csv
+#   and dens-behbetas.csv
+    betaframe_nobeh = pd.read_csv(outputdir+'densbetas.csv')
+    density_nobeh = betaframe_nobeh['density']
+    betalamd_nobeh = betaframe_nobeh['beta']
+
+    betaframe = pd.read_csv(outputdir+'dens-behbetas.csv')
+    density = betaframe['density']
+    beh_betalamd = betaframe['beta']
+    betaframe['realbeta']= 0.054*13.5*betaframe['density']   
+ 
+    fig,(ax2) = plt.subplots(1,1,figsize=(fsize,fsize))
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.set_xlabel('Density $d$ relative to benchmark')
+    ax2.set_ylabel('Coefficient')
+    #ax2.set_ylim(0.33,1.8)
+    ax2.plot(density,betaframe['realbeta'],':',color='saddlebrown',label='$\\beta$', marker='s')
+    ax2.plot(density_nobeh,betalamd_nobeh,color='olive',label='$\\hat{\\beta} $ Baseline Spatial-SIR data', marker='^')
+    ax2.plot(density,beh_betalamd,color='darkorange',label='$\\hat{\\beta}$ Behavioral Spatial-SIR data', marker='o')
+    ax2.legend()
+    #ax2.axhline(y=1, color='grey',linewidth=.5 )    
+    
+    fig.tight_layout()
+    plt.savefig(imagedir+'est_densitybetas.pdf')
+
+#%% Apply policy in SIR using the estimated beta, baseline
+if __name__ == "__main__":
+    from class_SIRmodel import SIRmodel
+    from class_averageStats import averageStats
+    
+    thisdensity = 0.5
+    shutday = 20
+    
+    # importing from estimates in sim_estimate_dens.do
+    betaframe_nobeh = pd.read_csv(outputdir+'densbetas.csv')
+    betaframe_nobeh['truebeta']= 0.054*13.5*betaframe_nobeh['density']   
+
+    baseline = 25600
+    cluster = 10
+    beta = np.array(betaframe_nobeh[betaframe_nobeh['density']==thisdensity]['beta'])[0]
+    truebeta = np.array(betaframe_nobeh[betaframe_nobeh['density']==thisdensity]['truebeta'])[0]
+    delta = benchkwargs['p_probr'][0]
+
+    # simulate effect of policy in SIR
+    base = SIRmodel(beta, delta ,q_popsize=baseline, q_init=cluster, )
+    policy = SIRmodel(beta, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
+    
+    # compare with effect of policy in Spatial-SIR   
+    file = gzip.open(outputdir+'dens-20-80-25pc.gz','rb')
+    allRandmodels = pickle.load(file)
+    file.close()
+    
+    modbase = list()
+    modpoli = list()
+    for model in allRandmodels:
+        if abs(model.q_citysize - 1/np.sqrt(thisdensity)) < .000001:
+            if model.p_shutr[0] == 999:
+                modbase.append(model)
+            else:
+                modpoli.append(model)
+    avbase = averageStats(modbase)
+    avpoli = averageStats(modpoli)    
+    
+    ##############
+    thisdensity = 1
+    shutday = 20
+    beta2 = np.array(betaframe_nobeh[betaframe_nobeh['density']==thisdensity]['beta'])[0]
+    delta = benchkwargs['p_probr'][0]
+    truebeta2 = np.array(betaframe_nobeh[betaframe_nobeh['density']==thisdensity]['truebeta'])[0]
+
+    # simulate effect of policy in SIR
+    base2 = SIRmodel(beta2, delta ,q_popsize=baseline, q_init=cluster, )
+    policy2 = SIRmodel(beta2, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
+    #base.plot(base.day)
+    #policy.plot(policy.day)
+    
+    # compare with effect of policy in Spatial-SIR
+    modbase2 = list()
+    modpoli2 = list()
+    for model in allRandmodels:
+        if abs(model.q_citysize - 1/np.sqrt(thisdensity)) < .000001:
+            if model.p_shutr[0] == 999:
+                modbase2.append(model)
+            else:
+                modpoli2.append(model)
+    avbase2 = averageStats(modbase2)
+    avpoli2 = averageStats(modpoli2)
+    
+    ##############
+    thisdensity = 1.5
+    shutday = 20
+    beta3 = np.array(betaframe_nobeh[betaframe_nobeh['density']==thisdensity]['beta'])[0]
+    delta = benchkwargs['p_probr'][0]
+    truebeta3 = np.array(betaframe_nobeh[betaframe_nobeh['density']==thisdensity]['truebeta'])[0]
+
+    # simulate effect of policy in SIR
+    base3 = SIRmodel(beta3, delta ,q_popsize=baseline, q_init=cluster, )
+    policy3 = SIRmodel(beta3, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
+    #base.plot(base.day)
+    #policy.plot(policy.day)
+    
+    # compare with effect of policy in Spatial-SIR
+    modbase3 = list()
+    modpoli3 = list()
+    for model in allRandmodels:
+        if abs(model.q_citysize - 1/np.sqrt(thisdensity)) < .000001:
+            if model.p_shutr[0] == 999:
+                modbase3.append(model)
+            else:
+                modpoli3.append(model)
+    avbase3 = averageStats(modbase3)
+    avpoli3 = averageStats(modpoli3)   
+    
+    
+    fsize=3.5
+    days= 80
+    fig = plt.figure(figsize=(3*fsize,fsize*1))
+    spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
+    
+    ax = fig.add_subplot(spec[0,0])
+    ax2 = fig.add_subplot(spec[0,1])
+    ax3 = fig.add_subplot(spec[0,2])
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.set_xlabel('Days ')
+    ax.set_ylim(-.03,.16)
+    ax.set_yticks(np.arange(0,0.16,.05))
+    ax.plot(np.arange(20,days),avbase.prinf[20:days]-avpoli.prinf[20:days],color='olive',label ='Spatial-SIR')
+    ax.plot(np.arange(20,days),base.SIR[20:days,1]/25600-policy.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
+    
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.set_xlabel('Days ')
+    ax2.set_ylim(-.03,.16)
+    ax2.set_yticks(np.arange(0,0.16,.05))
+    ax2.plot(np.arange(20,days),avbase2.prinf[20:days]-avpoli2.prinf[20:days],color='olive',label ='Spatial-SIR')
+    ax2.plot(np.arange(20,days),base2.SIR[20:days,1]/25600-policy2.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
+
+    ax3.spines['right'].set_visible(False)
+    ax3.spines['top'].set_visible(False)
+    ax3.set_xlabel('Days ')
+    ax3.set_ylim(-.03,.16)
+    ax3.set_yticks(np.arange(0,0.16,.05))
+    ax3.plot(np.arange(20,days),base3.SIR[20:days,1]/25600-policy3.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
+    ax3.plot(np.arange(20,days),avbase3.prinf[20:days]-avpoli3.prinf[20:days],color='olive',label ='Spatial-SIR')
+    ax3.hlines(0,20,80,color='grey',lw=0.3)
+    ax2.hlines(0,20,80,color='grey',lw=0.3)
+    ax.hlines(0,20,80,color='grey',lw=0.3)
+    
+    #first_legend =ax2.legend(bbox_to_anchor=(.48,.35), fontsize=10)
+    l2 = ax2.legend(handles=[],frameon=False, title_fontsize=12, 
+                               title='Density 1 \n $\\hat{\\beta} ='+str(round(beta2,2))
+                                +'$',#' \n$  \\beta ='+str(round(truebeta2,2))+'$'
+                               loc='upper left')
+    
+    la =plt.legend(bbox_to_anchor=(-1.3,.8), fontsize=10, framealpha=1)
+
+    #ax2.add_artist(a3)
+
+    l1 = ax.legend(handles=[], frameon=False, title_fontsize=12, 
+                         title='Density 0.5 \n $\\hat{\\beta} ='+str(round(beta,2))
+                         +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
+                         loc='upper left')
+
+    l3 = plt.legend(handles=[], frameon=False, title_fontsize=12, 
+                         title='Density 1.5 \n $\\hat{\\beta} ='+str(round(beta3,2))
+                         +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
+                         loc='upper left')
+    ax3.add_artist(la)
+    ax3.add_artist(l3)
+    fig.tight_layout()
+    plt.savefig(imagedir+'estimatedbeta_policies.pdf')
+
+#%% Apply policy in SIR using the estimated beta, behavioral
+if __name__ == "__main__":
+    from class_SIRmodel import SIRmodel
+    from class_averageStats import averageStats
+    
+    thisdensity = 0.5
+    shutday = 20
+    
+    # importing from estimates in sim_estimate_dens.do
+    betaframe_beh = pd.read_csv(outputdir+'dens-behbetas.csv')
+    betaframe_beh['truebeta']= 0.054*13.5*betaframe_beh['density']   
+
+    baseline = 25600
+    cluster = 10
+    beta = np.array(betaframe_beh[betaframe_beh['density']==thisdensity]['beta'])[0]
+    truebeta = np.array(betaframe_beh[betaframe_beh['density']==thisdensity]['truebeta'])[0]
+    delta = benchkwargs['p_probr'][0]
+
+    # simulate effect of policy in SIR
+    base = SIRmodel(beta, delta ,q_popsize=baseline, q_init=cluster, )
+    policy = SIRmodel(beta, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
+    
+    # compare with effect of policy in Spatial-SIR   
+    file = gzip.open(outputdir+'dens-beh_p-20-80-25pc.gz','rb')
+    allRandmodels = pickle.load(file)
+    file.close()
+    
+    modbase = list()
+    modpoli = list()
+    for model in allRandmodels:
+        if abs(model.q_citysize - 1/np.sqrt(thisdensity)) < .000001:
+            if model.p_shutr[0] == 999:
+                modbase.append(model)
+            else:
+                modpoli.append(model)
+    avbase = averageStats(modbase)
+    avpoli = averageStats(modpoli)    
+    
+    ##############
+    thisdensity = 1
+    shutday = 20
+    beta2 = np.array(betaframe_beh[betaframe_beh['density']==thisdensity]['beta'])[0]
+    delta = benchkwargs['p_probr'][0]
+    truebeta2 = np.array(betaframe_beh[betaframe_beh['density']==thisdensity]['truebeta'])[0]
+
+    # simulate effect of policy in SIR
+    base2 = SIRmodel(beta2, delta ,q_popsize=baseline, q_init=cluster, )
+    policy2 = SIRmodel(beta2, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
+    #base.plot(base.day)
+    #policy.plot(policy.day)
+    
+    # compare with effect of policy in Spatial-SIR
+    modbase2 = list()
+    modpoli2 = list()
+    for model in allRandmodels:
+        if abs(model.q_citysize - 1/np.sqrt(thisdensity)) < .000001:
+            if model.p_shutr[0] == 999:
+                modbase2.append(model)
+            else:
+                modpoli2.append(model)
+    avbase2 = averageStats(modbase2)
+    avpoli2 = averageStats(modpoli2)
+    
+    ##############
+    thisdensity = 1.5
+    shutday = 20
+    beta3 = np.array(betaframe_beh[betaframe_beh['density']==thisdensity]['beta'])[0]
+    delta = benchkwargs['p_probr'][0]
+    truebeta3 = np.array(betaframe_beh[betaframe_beh['density']==thisdensity]['truebeta'])[0]
+
+    # simulate effect of policy in SIR
+    base3 = SIRmodel(beta3, delta ,q_popsize=baseline, q_init=cluster, )
+    policy3 = SIRmodel(beta3, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
+    #base.plot(base.day)
+    #policy.plot(policy.day)
+    
+    # compare with effect of policy in Spatial-SIR
+    modbase3 = list()
+    modpoli3 = list()
+    for model in allRandmodels:
+        if abs(model.q_citysize - 1/np.sqrt(thisdensity)) < .000001:
+            if model.p_shutr[0] == 999:
+                modbase3.append(model)
+            else:
+                modpoli3.append(model)
+    avbase3 = averageStats(modbase3)
+    avpoli3 = averageStats(modpoli3)   
+    
+    
+    fsize=3.5
+    days= 80
+    fig = plt.figure(figsize=(3*fsize,fsize*1))
+    spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
+    
+    ax = fig.add_subplot(spec[0,0])
+    ax2 = fig.add_subplot(spec[0,1])
+    ax3 = fig.add_subplot(spec[0,2])
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.set_xlabel('Days ')
+    ax.set_ylim(-.03,.16)
+    ax.set_yticks(np.arange(0,0.16,.05))
+    ax.plot(np.arange(20,days),avbase.prinf[20:days]-avpoli.prinf[20:days],color='olive',label ='Spatial-SIR')
+    ax.plot(np.arange(20,days),base.SIR[20:days,1]/25600-policy.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
+    
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.set_xlabel('Days ')
+    ax2.set_ylim(-.03,.16)
+    ax2.set_yticks(np.arange(0,0.16,.05))
+    ax2.plot(np.arange(20,days),avbase2.prinf[20:days]-avpoli2.prinf[20:days],color='olive',label ='Spatial-SIR')
+    ax2.plot(np.arange(20,days),base2.SIR[20:days,1]/25600-policy2.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
+
+    ax3.spines['right'].set_visible(False)
+    ax3.spines['top'].set_visible(False)
+    ax3.set_xlabel('Days ')
+    ax3.set_ylim(-.03,.16)
+    ax3.set_yticks(np.arange(0,0.16,.05))
+    ax3.plot(np.arange(20,days),base3.SIR[20:days,1]/25600-policy3.SIR[20:days,1]/25600,'--',color='darkorange',label ='Behavioral SIR')
+    ax3.plot(np.arange(20,days),avbase3.prinf[20:days]-avpoli3.prinf[20:days],color='olive',label ='Behavioral Spatial-SIR')
+    ax3.hlines(0,20,80,color='grey',lw=0.3)
+    ax2.hlines(0,20,80,color='grey',lw=0.3)
+    ax.hlines(0,20,80,color='grey',lw=0.3)
+    
+    #first_legend =ax2.legend(bbox_to_anchor=(.48,.35), fontsize=10)
+    l2 = ax2.legend(handles=[],frameon=False, title_fontsize=12, 
+                               title='Density 1 \n $\\hat{\\beta} ='+str(round(beta2,2))
+                                +'$',#' \n$  \\beta ='+str(round(truebeta2,2))+'$'
+                               loc='upper left')
+    
+    la =plt.legend(bbox_to_anchor=(-1.3,.8), fontsize=10, framealpha=1)
+
+    #ax2.add_artist(a3)
+
+    l1 = ax.legend(handles=[], frameon=False, title_fontsize=12, 
+                         title='Density 0.5 \n $\\hat{\\beta} ='+str(round(beta,2))
+                         +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
+                         loc='upper left')
+
+    l3 = plt.legend(handles=[], frameon=False, title_fontsize=12, 
+                         title='Density 1.5 \n $\\hat{\\beta} ='+str(round(beta3,2))
+                         +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
+                         loc='upper left')
+    ax3.add_artist(la)
+    ax3.add_artist(l3)
+    fig.tight_layout()
+    plt.savefig(imagedir+'estimatedbeta_beh-policies.pdf')
+
+#%% prediction plots
+    import pandas as pd
+    fsize=3.5
+    popsize = 25600 
+    nobeh = pd.read_csv('output/predictions.csv')
+    beh = pd.read_csv('output/predictions_beh.csv')
+
+    fig = plt.figure(figsize=(3*fsize,fsize*1))
+    spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
+
+    ax = fig.add_subplot(spec[0,0])
+    ax2 = fig.add_subplot(spec[0,1])
+    ax3 = fig.add_subplot(spec[0,2])
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.plot(nobeh['t'],nobeh['active']/popsize, color='olive', )
+    ax.plot(nobeh['t'],nobeh['myactive20']/popsize, ':', color='olive', )
+    ax.plot(beh['t'],beh['active']/popsize, color='darkorange')
+    ax.plot(beh['t'],beh['myactive20']/popsize, ':', color='darkorange')
+    ax.set_xlabel('Days ')
+    ax.set_yticks(np.arange(0,0.11,0.02))
+    ax.set_ylim(0.01,0.08)
+    ax.legend(handles=[], title='Infected', title_fontsize=12, frameon=False, loc='lower left')
+    
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.plot(nobeh['t'],nobeh['outside'], color='olive', )
+    ax2.plot(nobeh['t'],nobeh['myoutside20'], ':', color='olive', )
+    ax2.plot(beh['t'],beh['outside'], color='darkorange')
+    ax2.plot(beh['t'],beh['myoutside20'], ':', color='darkorange')
+    ax2.set_xlabel('Days ')
+    ax2.set_yticks(np.arange(0.6,0.751,0.05))
+    ax2.set_ylim(0.55,0.76)
+    ax2.legend(handles=[], title='Contacts', title_fontsize=12, frameon=False, loc='lower left')
+
+    ax3.spines['right'].set_visible(False)
+    ax3.spines['top'].set_visible(False)
+    ax3.plot(nobeh['t'],nobeh['growthi'], color='olive', label='Baseline Spatial-SIR')
+    ax3.plot(nobeh['t'],nobeh['mygrowthi20'], ':', color='olive',label='Baseline, prediction' )
+    ax3.plot(beh['t'],beh['growthi'], color='darkorange', label='Behavioral Spatial-SIR')
+    ax3.plot(beh['t'],beh['mygrowthi20'], ':', color='darkorange', label='Behavioral, prediction')
+    ax3.set_xlabel('Days ')
+    ax3.set_ylim(-.12,0.025)
+    la = ax3.legend(bbox_to_anchor=(0.2,0.48), framealpha=1)
+    l3 = plt.legend(handles=[], title='Growth rate', title_fontsize=12, frameon=False, 
+                    loc='lower center')
+    ax3.add_artist(l3)
+    ax3.add_artist(la)
+    fig.tight_layout()
+    plt.savefig(imagedir+'prediction_nobias.pdf')
+
+    fig = plt.figure(figsize=(3*fsize,fsize*1))
+    spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
+    ax = fig.add_subplot(spec[0,0])
+    ax2 = fig.add_subplot(spec[0,1])
+    ax3 = fig.add_subplot(spec[0,2])
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.plot(nobeh['t'],nobeh['active']/popsize, color='olive')
+    ax.plot(nobeh['t'],nobeh['myactive20_dbias']/popsize, ':', color='olive')
+    ax.plot(beh['t'],beh['active_dbias']/popsize, color='darkorange')
+    ax.plot(beh['t'],beh['myactive20_dbias']/popsize, ':', color='darkorange')
+    ax.set_xlabel('Days ')
+    ax.set_yticks(np.arange(0,0.11,0.02))
+    ax.set_ylim(0,0.113)
+    ax.legend(handles=[], title='Infected', title_fontsize=12, frameon=False, loc='lower left')
+    
+
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.plot(nobeh['t'],nobeh['outside_dbias'], color='olive', label='Simulation')
+    ax2.plot(nobeh['t'],nobeh['myoutside20_dbias'], ':', color='olive', label='Prediction')
+    ax2.plot(beh['t'],beh['outside_dbias'], color='darkorange')
+    ax2.plot(beh['t'],beh['myoutside20_dbias'], ':', color='darkorange')
+    ax2.set_xlabel('Days ')
+    ax2.set_yticks(np.arange(0.6,0.751,0.05))
+    ax2.set_ylim(0.55,0.76)
+    ax2.legend(handles=[], title='Contacts', title_fontsize=12, frameon=False, loc='lower right')
+
+    ax3.spines['right'].set_visible(False)
+    ax3.spines['top'].set_visible(False)
+    ax3.plot(nobeh['t'],nobeh['growthi_dbias'], color='olive', label='Baseline Spatial-SIR')
+    ax3.plot(nobeh['t'],nobeh['mygrowthi20_dbias'], ':', color='olive',label='Baseline, prediction' )
+    ax3.plot(beh['t'],beh['growthi_dbias'], color='darkorange', label='Behavioral Spatial-SIR')
+    ax3.plot(beh['t'],beh['mygrowthi20_dbias'], ':', color='darkorange', label='Behavioral, prediction')
+    ax3.set_xlabel('Days ')
+    ax3.set_ylim(-.12,0.025)
+    la = ax3.legend(bbox_to_anchor=(-0.85,0.9), framealpha=1)
+    l3 = plt.legend(handles=[], title='Growth rate', title_fontsize=12, frameon=False, 
+                    loc='lower left')
+    ax3.add_artist(l3)
+    ax3.add_artist(la)
+    fig.tight_layout()
+    plt.savefig(imagedir+'prediction_withbias.pdf')

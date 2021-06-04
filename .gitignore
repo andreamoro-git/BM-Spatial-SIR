@@ -134,3 +134,4 @@ junk/
 test*
 *.pickle.gz
 *.DS_store
+checks-obsolete/
