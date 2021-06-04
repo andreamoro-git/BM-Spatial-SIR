@@ -214,10 +214,19 @@ List of figures
 | 16                | fig-paper.py             | 1339        |  figuresdir/nc5-prediction_nobias.pdf
 | 17                | fig-paper.py             | 1384        |  figuresdir/nc5-prediction_withbias.pdf
 
-Table 2: sim_estimate_policies_multitimes row # 160
+List of figures
+---------------------------
+Table 1: manually generated
+Table 2: stata code sim_estimate_policies_multitimes.do row # 160
 
 --
 
 ## Acknowledgements
 
-In generating this README we followed the template README for social science replication packages, available at https://social-science-data-editors.github.io/template_README/
+* In generating this README we followed the template README for social science replication packages, available at https://social-science-data-editors.github.io/template_README/
+
+* To generate a list of figure numbers with figure names:
+https://stackoverflow.com/questions/66551105/lazy-quantifier-for-an-exact-word-in-large-text-with-newlines/66555601#66555601
+
+* To find code row numbers where each filename is generated (needs some formatting of the file generates by the previous code) run the following on a bash shell
+while read line; do grep -n "$line" *.py; done < figs.txt
