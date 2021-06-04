@@ -170,7 +170,7 @@ List of figures
 ---------------------------
 
 | Figure # | Program      | Line Number | Output file
-|------- --|--------------|-------------|-----------------------------------------------
+|----------|--------------|-------------|-----------------------------------------------
 | 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
 | 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
 | 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
