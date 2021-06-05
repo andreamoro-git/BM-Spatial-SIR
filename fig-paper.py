@@ -21,7 +21,7 @@ from copy import deepcopy
 import matplotlib
 import matplotlib.gridspec as gridspec
 
-import labellines
+# import labellines
 # this can be commented out if your system does not have or cannot
 # read a LaTeX distribution.
 matplotlib.rcParams.update({
@@ -1290,8 +1290,8 @@ if __name__ == "__main__":
     import pandas as pd
     fsize=3.5
     popsize = 25600
-    nobeh = pd.read_csv('output/predictions.csv')
-    beh = pd.read_csv('output/predictions_beh.csv')
+    nobeh = pd.read_csv(outputdir+'predictions.csv')
+    beh = pd.read_csv(outputdir+'predictions_beh.csv')
 
     fig = plt.figure(figsize=(3*fsize,fsize*1))
     spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)

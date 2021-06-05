@@ -278,6 +278,6 @@ list modsort Model Out True Estimated True2 Estimated2
 
 format True* Estim* %10.3f
 list True Estimated True2 Estimated2
-listtex Out True Estimated True2 Estimated2 using ../output/estimates-multitimes.tex, replace type rstyle(tabular) head(\begin{tabular}{lcccc} \toprule & \multicolumn{2}{c}{Treated} & \multicolumn{2}{c}{Treated\#Density}  \\ Outcome  & True & Estimated & True & Estimated \\ \midrule \\ ) foot("\bottomrule \end{tabular}")
+listtex Out True Estimated True2 Estimated2 using `basedir'estimates-multitimes.tex, replace type rstyle(tabular) head(\begin{tabular}{lcccc} \toprule & \multicolumn{2}{c}{Treated} & \multicolumn{2}{c}{Treated\#Density}  \\ Outcome  & True & Estimated & True & Estimated \\ \midrule \\ ) foot("\bottomrule \end{tabular}")
 
 log close

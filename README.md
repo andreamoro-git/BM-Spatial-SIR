@@ -95,6 +95,7 @@ Files marked with \* contain modules imported by other files and are not meant t
     2) spSAYDR_randLoc (child of spatialSAYDR). Simulates spatial-SIR with agents moved in randomly drawn locations every day
     3) spSAYDR_hetDensity (child of spatialSAYDR). Simulates spatial-SIR with initial density of agents decreasing from center of city
     4) spSAYDR_behav (child of spatialSAYDR). Simulates spatial-SIR with behavioral responses
+    5) spSAYDR_behav_local(child of spSAYDR_behav). Simulates spatial-SIR with behavioral responses only around the contagion circle
 
 - \* class_SIRmodel.py
 
@@ -139,7 +140,7 @@ We kindly ask academics using or adapting this code in scientific publications t
     type = "Working Paper",
     series = "Working Paper Series",
     number = "27590", year = "2021",
-    month = "February",
+    month = "June",
     doi = {10.3386/w27590},
     URL = "http://www.nber.org/papers/w27590",
     howpublished = "NBER Working Paper Series \# 27590"
@@ -152,7 +153,14 @@ Instructions to Replicators
 (Optional step) To download and regenerate calibration data
 - Run stata/importdata.do
 
-To simulate the model and generate figures:
+To simulate the model and generate figures, all code can be run 
+at once by executing from a shell (after appropriately modifying
+the path to the stata executable) from the root directory
+
+- doall.sh
+
+Alternatively, run the following files from the root dir in this order
+
 
 1) Run python sim_paper.py
 2) Run stata sim_estimate_dens.do
@@ -161,8 +169,9 @@ To simulate the model and generate figures:
 5) Run python fig-paper.py (generates all figures)
 
 (To generate appendix figures)
-6) Run python class_simul_policy.py
-7) Run python fig-appendix.py
+
+6. Run python class_simul_policy.py
+7. Run python fig-appendix.py
 
 All figures are saved in output/images
 

@@ -6,7 +6,7 @@ capture log close
 log using `basedir'sim_estimate_policies_multitimes-pdate20.log, text replace
 
 local filetype = "dens"
-insheet using ../output/nc5-`filetype'-20-80-25pc.csv, comma clear
+insheet using `basedir'`filetype'-20-80-25pc.csv, comma clear
 set seed 2443
 
 // drop observations before peak or not
@@ -47,22 +47,22 @@ replace treated = 1 if npi_date==20 & t>=20
 
 xtreg growthi i.t treated##c.density if mysample==1, fe
 scalar g0 = e(ll)
-regsave using results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) replace
+regsave using `basedir'results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) replace
 xtreg growthi i.t treated##c.density, fe
 scalar gall = e(ll)
-regsave using results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append
+regsave using `basedir'results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append
 xtreg outside i.t treated##c.density if mysample==1, fe
 scalar o0 = e(ll)
-regsave using results, addlabel(Outcome, Contacts, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'results, addlabel(Outcome, Contacts, Model, Baseline, Specification, Estimated) append
 xtreg outside i.t treated##c.density, fe
 scalar oall = e(ll)
-regsave using results, addlabel(Outcome, Contacts, Model, Baseline, Specification, True) append
+regsave using `basedir'results, addlabel(Outcome, Contacts, Model, Baseline, Specification, True) append
 xtreg active i.t treated##c.density if mysample==1, fe
 scalar ac0 = e(ll)
-regsave using results, addlabel(Outcome, Active, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'results, addlabel(Outcome, Active, Model, Baseline, Specification, Estimated) append
 xtreg active i.t treated##c.density, fe
 scalar acall = e(ll)
-regsave using results, addlabel(Outcome, Active, Model, Baseline, Specification, True) append
+regsave using `basedir'results, addlabel(Outcome, Active, Model, Baseline, Specification, True) append
 
 
 preserve
@@ -160,9 +160,9 @@ keep active myactive t
 rename active active_dbias
 rename myactive myactive20_dbias
 sort t
-merge 1:1 t using predictions
+merge 1:1 t using `basedir'predictions
 drop _merge
-save predictions, replace
+save `basedir'predictions, replace
 restore
 
 preserve
@@ -180,9 +180,9 @@ collapse outside myoutside20 npi_date actnotreat , by(t)
 twoway line outside t|| line myoutside t // || line actnotreat t, legend(pos(1))
 summ outside myoutside
 keep outside myoutside t
-merge 1:1 t using predictions
+merge 1:1 t using `basedir'predictions
 drop _merge
-save predictions, replace
+save `basedir'predictions, replace
 restore
 
 
@@ -203,9 +203,9 @@ summ outside myoutside
 keep outside myoutside t
 rename outside outside_dbias
 rename myoutside myoutside20_dbias
-merge 1:1 t using predictions
+merge 1:1 t using `basedir'predictions
 drop _merge
-save predictions, replace
+save `basedir'predictions, replace
 
 restore
 
@@ -223,9 +223,9 @@ collapse growthi mygrowthi20 npi_date, by(t)
 twoway line growthi t|| line mygrowthi t , legend(pos(1))
 summ growthi mygrowthi
 keep growthi mygrowthi t
-merge 1:1 t using predictions
+merge 1:1 t using `basedir'predictions
 drop _merge
-save predictions, replace
+save `basedir'predictions, replace
 restore
 
 preserve
@@ -243,9 +243,9 @@ summ growthi mygrowthi
 keep growthi mygrowthi t
 rename growthi growthi_dbias
 rename mygrowthi mygrowthi20_dbias
-merge 1:1 t using predictions
+merge 1:1 t using `basedir'predictions
 drop _merge
-save predictions, replace
+save `basedir'predictions, replace
 restore
 
 
@@ -253,7 +253,7 @@ restore
 *Now with behavior
 
 local filetype = "dens-beh_p"
-insheet using ../output/nc5-`filetype'-20-80-25pc.csv, comma clear
+insheet using `basedir'`filetype'-20-80-25pc.csv, comma clear
 set seed 2443
 // drop observations before peak or not
 *local drop " if t>tm"
@@ -295,22 +295,22 @@ replace treated = 1 if npi_date==20 & t>=20
 
 xtreg growthi i.t treated##c.density if mysample==1, fe
 scalar g0 = e(ll)
-regsave using results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) replace
+regsave using `basedir'results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) replace
 xtreg growthi i.t treated##c.density, fe
 scalar gall = e(ll)
-regsave using results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append
+regsave using `basedir'results, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append
 xtreg outside i.t treated##c.density if mysample==1, fe
 scalar o0 = e(ll)
-regsave using results, addlabel(Outcome, Contacts, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'results, addlabel(Outcome, Contacts, Model, Baseline, Specification, Estimated) append
 xtreg outside i.t treated##c.density, fe
 scalar oall = e(ll)
-regsave using results, addlabel(Outcome, Contacts, Model, Baseline, Specification, True) append
+regsave using `basedir'results, addlabel(Outcome, Contacts, Model, Baseline, Specification, True) append
 xtreg active i.t treated##c.density if mysample==1, fe
 scalar ac0 = e(ll)
-regsave using results, addlabel(Outcome, Active, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'results, addlabel(Outcome, Active, Model, Baseline, Specification, Estimated) append
 xtreg active i.t treated##c.density, fe
 scalar acall = e(ll)
-regsave using results, addlabel(Outcome, Active, Model, Baseline, Specification, True) append
+regsave using `basedir'results, addlabel(Outcome, Active, Model, Baseline, Specification, True) append
 
 
 preserve
@@ -389,7 +389,7 @@ summ diff if t>=20
 sort t
 keep if realtreated==1
 keep active myactive t
-save predictions_beh, replace
+save `basedir'predictions_beh, replace
 
 restore
 
@@ -412,9 +412,9 @@ keep active myactive t
 rename active active_dbias
 rename myactive myactive20_dbias
 sort t
-merge 1:1 t using predictions_beh
+merge 1:1 t using `basedir'predictions_beh
 drop _merge
-save predictions_beh, replace
+save `basedir'predictions_beh, replace
 restore
 
 preserve
@@ -432,9 +432,9 @@ collapse outside myoutside20 npi_date outnotreat , by(t)
 twoway line outside t|| line myoutside t // || line actnotreat t, legend(pos(1))
 summ outside myoutside
 keep outside myoutside t
-merge 1:1 t using predictions_beh
+merge 1:1 t using `basedir'predictions_beh
 drop _merge
-save predictions_beh, replace
+save `basedir'predictions_beh, replace
 restore
 
 preserve
@@ -454,9 +454,9 @@ summ outside myoutside
 keep outside myoutside t
 rename outside outside_dbias
 rename myoutside myoutside20_dbias
-merge 1:1 t using predictions_beh
+merge 1:1 t using `basedir'predictions_beh
 drop _merge
-save predictions_beh, replace
+save `basedir'predictions_beh, replace
 
 restore
 
@@ -474,9 +474,9 @@ collapse growthi mygrowthi20 npi_date, by(t)
 twoway line growthi t|| line mygrowthi t , legend(pos(1))
 summ growthi mygrowthi
 keep growthi mygrowthi t
-merge 1:1 t using predictions_beh
+merge 1:1 t using `basedir'predictions_beh
 drop _merge
-save predictions_beh, replace
+save `basedir'predictions_beh, replace
 restore
 
 preserve
@@ -494,15 +494,15 @@ summ growthi mygrowthi
 keep growthi mygrowthi t
 rename growthi growthi_dbias
 rename mygrowthi mygrowthi20_dbias
-merge 1:1 t using predictions_beh
+merge 1:1 t using `basedir'predictions_beh
 drop _merge
-save predictions_beh, replace
+save `basedir'predictions_beh, replace
 restore
 
-use predictions_beh, clear
-outsheet using ../output/predictions_beh.csv, comma replace
+use `basedir'predictions_beh, clear
+outsheet using `basedir'predictions_beh.csv, comma replace
 
-use predictions, clear
-outsheet using ../output/predictions.csv, comma replace
+use `basedir'predictions, clear
+outsheet using `basedir'predictions.csv, comma replace
 
 log close

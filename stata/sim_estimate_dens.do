@@ -10,7 +10,7 @@ log using `basedir'sim_estimate_dens.log, text replace
 *local filetype = "pop"
 
 local filetype = "dens"
-insheet using ../output/nc5-`filetype'-20-80-25pc.csv, comma clear
+insheet using `basedir'`filetype'-20-80-25pc.csv, comma clear
 quietly xtset naics t
 summ
 
@@ -63,7 +63,7 @@ preserve
 collapse beta std, by(density)
 list
 
-outsheet density std beta using ../output/nc5-`filetype'betas.csv, comma replace
+outsheet density std beta using `basedir'`filetype'betas.csv, comma replace
 restore
 
 // // now do only for observations before the peak
@@ -107,13 +107,13 @@ restore
 // collapse beta std, by(density)
 // list
 //
-// outsheet density std beta using ../output/nc5-`filetype'betas-beforepeak.csv, comma replace
+// outsheet density std beta using `basedir'`filetype'betas-beforepeak.csv, comma replace
 // restore
 
 *** Now with behavioral
 
 local filetype = "dens-beh_p"
-insheet using ../output/nc5-`filetype'-20-80-25pc.csv, comma clear
+insheet using `basedir'`filetype'-20-80-25pc.csv, comma clear
 quietly xtset naics t
 summ
 
@@ -166,6 +166,6 @@ preserve
 collapse beta std, by(density)
 list
 
-outsheet density std beta using ../output/nc5-`filetype'betas.csv, comma replace
+outsheet density std beta using `basedir'`filetype'betas.csv, comma replace
 restore
 log close
