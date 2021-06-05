@@ -1,3 +1,4 @@
+log using sim_estimate.log, text replace
 insheet using ../output/nc5-policy-20-80-30pc.csv, comma clear
 gen spatial = 1
 save alldata, replace
@@ -92,3 +93,4 @@ reg growth c.X1##c.density, cluster(naics)
 gen dX = density*X1
 reg growth X1 dX
 restore
+log close

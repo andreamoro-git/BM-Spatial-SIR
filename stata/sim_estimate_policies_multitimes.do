@@ -1,5 +1,7 @@
 //
 
+capture log close
+log using sim_estimate_policies_multitimes.log, text replace
 local filetype = "dens-beh_p"
 *local filetype = "dens"
 
@@ -65,8 +67,6 @@ regsave using results, addlabel(Outcome, Active, Model, Baselineint, Specificati
 xtreg active i.t treated##c.density, fe
 scalar acall = e(ll)
 regsave using results, addlabel(Outcome, Active, Model, Baselineint, Specification, True) append
-
-stop
 
 // no interaction
 xtreg growthi i.t treated if mysample==1, fe
@@ -158,3 +158,5 @@ drop _* r2 coef stderr var Spec N
 
 list Outcome Model True_nosd Estimated
 listtex Outcome Model True_nosd Estimated, type rstyle(tabular) head("\begin{tabular}{llcc}" "\midrule Outcome & Model & True &  Estimated \\ \midrule") foot("\bottomrule \end{tabular}")
+
+log close

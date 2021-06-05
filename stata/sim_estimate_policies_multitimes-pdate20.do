@@ -1,4 +1,6 @@
 //
+capture log close
+log using sim_estimate_policies_multitimes-pdate20.txt, text replace
 
 *local filetype = "dens-beh_p"
 local filetype = "dens"
@@ -507,3 +509,5 @@ outsheet using ../output/predictions_beh.csv, comma replace
 
 use predictions, clear
 outsheet using ../output/predictions.csv, comma replace
+
+log close
