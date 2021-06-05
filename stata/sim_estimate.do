@@ -29,7 +29,6 @@ regress D.active L.X L.active if treat==0 & spatial==0, noconstant
 
 reg growth X if naics==1
 
-
 reg growth treat##naics
 
 xtreg growth treat##naics i.t, fe
