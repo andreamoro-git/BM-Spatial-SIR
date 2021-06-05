@@ -1,20 +1,20 @@
-//
-capture log close
-log using sim_estimate_policies_multitimes-pdate20.txt, text replace
+* estimation and predictions using did from models with the same treatment date
 
-*local filetype = "dens-beh_p"
+local basedir = "output/nc5-"
 local filetype = "dens"
-*insheet using ../output/nc5-`filetype'-times-25pc.csv, comma clear
+capture log close
+log using `basedir'sim_estimate_policies_multitimes-pdate20.log, text replace
+
+local filetype = "dens"
 insheet using ../output/nc5-`filetype'-20-80-25pc.csv, comma clear
 set seed 2443
+
 // drop observations before peak or not
 *local drop " if t>tm"
 local drop "if _n<0"
 
-
 quietly xtset naics t
 set more off
-*gen treated = t>=20 & npi_date==20
 replace outside = 1 if t==0
 summ
 
@@ -86,8 +86,6 @@ drop if Spec == "Estimated"
 drop _* r2 coef stderr var Spec N
 
 list Outcome Model Est* True*
-*texsave using table.tex, replace nofix preamble("\usepackage{multirow}") align(llcc) width(.8\linewidth)
-
 listtex Outcome Model True TrueN Estimated EstimatedN, type rstyle(tabular) head("\begin{tabular}{llcccc}" "\midrule Outcome & Model & True & N & Estimated & N \\ \midrule") foot("\bottomrule \end{tabular}")
 
 use results, clear
@@ -110,15 +108,12 @@ drop if Spec == "Estimated"
 drop _* r2 coef stderr var Spec N
 
 list Outcome Model Est* True*
-*texsave using table.tex, replace nofix preamble("\usepackage{multirow}") align(llcc) width(.8\linewidth)
 
 listtex Outcome Model True TrueN Estimated EstimatedN, type rstyle(tabular) head("\begin{tabular}{llcccc}" "\midrule Outcome & Model & True & N & Estimated & N \\ \midrule") foot("\bottomrule \end{tabular}")
 
 restore
 
-
-
-* BEGIN attempts to do predictions TO REVIEW
+* BEGIN attempts to do predictions
 preserve
 tab density
 gen temp = active if npi_date==999

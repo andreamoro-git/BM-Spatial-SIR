@@ -121,7 +121,7 @@ for day in range(1,m.q_days):
     if np.sum(m.state==m.I)+np.sum(m.state==m.Y) <=15:
         break
 
-    #%% Initial location in space, heterogeneous density model
+#%% Initial location in space, heterogeneous density model
 
 from class_spatialModels import spSAYDR_hetDensity
     
@@ -226,14 +226,14 @@ line_labels=['SIR',
              '\parbox{10em}{Spatial-SIR\\newline with random positions}',
              'Spatial-SIR']
 
-fig.legend([l1,l2,l3],bbox_to_anchor=(.62,.82), labels=line_labels, fontsize=12,framealpha=1)
+fig.legend(bbox_to_anchor=(.62,.82), labels=line_labels, fontsize=12,framealpha=1)
 ax.set_title('Growth rate')
 ax2.set_title('Infected')
 
 fig.tight_layout()
 plt.savefig(imagedir+'density_contagion2.pdf')
-plt.show()
 
+plt.close()
 #%% Random locations
 
 # Benchmark model
@@ -305,7 +305,7 @@ ax2.set_title('Infected')
 fig.tight_layout()
 
 plt.savefig(imagedir+'short-random-rates.pdf')
-plt.show()  
+plt.close()
     
 print('Peak active, baseline',np.round(max(bavg.prinf),2)
       ,'day ',np.where(max(bavg.prinf)==bavg.prinf)[0])
@@ -403,8 +403,7 @@ ax2.set_title('SIR')
 
 fig.tight_layout()
 plt.savefig(imagedir+'SIR-citysize-rates.pdf')
-plt.show()           
-
+plt.close()
 
 print('Peak active, baseline',np.round(max(s_bavg.prinf),2)
       ,'day ',np.where(max(s_bavg.prinf)==s_bavg.prinf)[0])
@@ -494,7 +493,7 @@ fig.legend([ll2,ll1],line_labels, bbox_to_anchor=(.63,.84), fontsize= 12, border
 
 fig.tight_layout()
 plt.savefig(imagedir+'short-density_contagion1.pdf')
-
+plt.close()
 
 #%% Different city density (different size same population) 
 
@@ -617,7 +616,7 @@ ax2.set_title('SIR')
 
 fig.tight_layout()
 plt.savefig(imagedir+'short-3densities.pdf')
-plt.show()           
+plt.close()           
 
 #%% Heterogeneous density
 
@@ -626,7 +625,7 @@ b = pickle.load(file1)
 file1.close()
 bavg = averageStats(b)
 
-fileq = 'output/hetdens-lambda-1.pickle.gz'
+fileq = outputdir+'hetdens-lambda-1.pickle.gz'
 file = gzip.open(fileq,'rb')
 mod1 = pickle.load(file)
 file.close()
@@ -649,13 +648,11 @@ ms1 = '$\\frac{R_\\infty}{N}=$'+str(np.round(np.max(b1avg.prtinf),2))
 
 ax2.plot(np.arange(g_plotdays),bavg.prinf[0:g_plotdays],'',c='olive',linewidth=1.3, label='Baseline Spatial-SIR, '+msa)
 ax2.plot(np.arange(g_plotdays),b1avg.prinf[0:g_plotdays],'--',c='darkorange',linewidth=1.7, label="Heterogeneous density, "+ms1)
-
 ax2.legend(loc='upper right')
-
 
 fig.tight_layout()
 plt.savefig(imagedir+'hetdens1.pdf')
-plt.show()    
+plt.close()  
 
 #%% Different movement speed 
  
@@ -771,9 +768,8 @@ line_labels=['Baseline Spatial-SIR',
 # ax2.legend(bbox_to_anchor=(1, .3),loc='center right',title='Infected \hspace{.02em} (right scale)')
 
 fig.tight_layout()
-plt.savefig(imagedir+'short-nomovement-rateslarge.pdf')
-plt.show() 
-
+plt.savefig(imagedir+'short-nomovement-rateslarge.pdf') 
+plt.close()
 
 
 #%% Behavioral model, reduction of contacts
@@ -805,6 +801,7 @@ ax.plot(np.arange(days), 1-bb.fracNotScared[:days], '--', color='darkorange', la
 ax.legend()
 fig.tight_layout()    
 plt.savefig(imagedir+'SIR_beh_responses.pdf')
+plt.close()
 
 #%% Behavioral responses, comparison with benchmark
 
@@ -837,15 +834,14 @@ contRate = benchkwargs['p_probc'][0][1]
 recRate = benchkwargs['p_probr'][0]
 bb = SIRmodel(contRate*13.5, recRate, q_popsize=popSize, behModel={'type': 'Lones','phi': 0.01})
 
-
 aa = SIRmodel(contRate*13.5, recRate, q_init=5, q_popsize=popSize)
-dfSIR = pd.DataFrame(aa.SIR,index=np.arange(aa.day+1),columns=['S','I','R'])
+dfSIR = pd.DataFrame(aa.SIR[:,:3],index=np.arange(aa.day+1),columns=['S','I','R'])
 dfSIR['ILag'] = dfSIR['I'].shift()
 dfSIR['ld'] = np.log(dfSIR['I']) - np.log(dfSIR['ILag'])
 dfSIRld = np.array(dfSIR['ld'])
 
 bb = SIRmodel(contRate*13.5, recRate, q_init=5, q_popsize=popSize,behModel={'type': 'Lones','phi': 0.01},)
-dfSIRLon = pd.DataFrame(bb.SIR,index=np.arange(bb.day+1),columns=['S','I','R'])
+dfSIRLon = pd.DataFrame(bb.SIR[:,:3],index=np.arange(bb.day+1),columns=['S','I','R'])
 dfSIRLon['ILag'] = dfSIRLon['I'].shift()
 dfSIRLon['ld'] = np.log(dfSIRLon['I']) - np.log(dfSIRLon['ILag'])
 dfSIRLonld = np.array(dfSIRLon['ld'])
@@ -889,6 +885,7 @@ fig.legend([li1,li2,li3,li4],line_labels, bbox_to_anchor=(.65,.85), fontsize= 12
 
 fig.tight_layout()    
 plt.savefig(imagedir+'SIR_beh.pdf')
+plt.close()
 
 #%% Behavioral model, local, reduction of contacts
 
@@ -954,39 +951,39 @@ line_labels=['Behavioral Spatial-SIR (local)',
 
 fig.legend([lb1,lb2],line_labels, bbox_to_anchor=(.7,.85), fontsize= 12, framealpha=1)
 
-
-
 fig.tight_layout()    
 plt.savefig(imagedir+'SIR_beh_local.pdf')
+plt.close()
 
  
 #%% Figure comparing estimated betas in baseline and behavioral with real beta
 
 #   Before doing this, run sim_estimate_dens.do in stata to generate densbetas.csv
 #   and dens-behbetas.csv
-    betaframe_nobeh = pd.read_csv(outputdir+'densbetas.csv')
-    density_nobeh = betaframe_nobeh['density']
-    betalamd_nobeh = betaframe_nobeh['beta']
+betaframe_nobeh = pd.read_csv(outputdir+'densbetas.csv')
+density_nobeh = betaframe_nobeh['density']
+betalamd_nobeh = betaframe_nobeh['beta']
 
-    betaframe = pd.read_csv(outputdir+'dens-behbetas.csv')
-    density = betaframe['density']
-    beh_betalamd = betaframe['beta']
-    betaframe['realbeta']= 0.054*13.5*betaframe['density']   
+betaframe = pd.read_csv(outputdir+'dens-beh_pbetas.csv')
+density = betaframe['density']
+beh_betalamd = betaframe['beta']
+betaframe['realbeta']= 0.054*13.5*betaframe['density']   
  
-    fig,(ax2) = plt.subplots(1,1,figsize=(fsize,fsize))
-    ax2.spines['right'].set_visible(False)
-    ax2.spines['top'].set_visible(False)
-    ax2.set_xlabel('Density $d$ relative to benchmark')
-    ax2.set_ylabel('Coefficient')
-    #ax2.set_ylim(0.33,1.8)
-    ax2.plot(density,betaframe['realbeta'],':',color='saddlebrown',label='$\\beta$', marker='s')
-    ax2.plot(density_nobeh,betalamd_nobeh,color='olive',label='$\\hat{\\beta} $ Baseline Spatial-SIR data', marker='^')
-    ax2.plot(density,beh_betalamd,color='darkorange',label='$\\hat{\\beta}$ Behavioral Spatial-SIR data', marker='o')
-    ax2.legend()
-    #ax2.axhline(y=1, color='grey',linewidth=.5 )    
-    
-    fig.tight_layout()
-    plt.savefig(imagedir+'est_densitybetas.pdf')
+fig,(ax2) = plt.subplots(1,1,figsize=(fsize,fsize))
+ax2.spines['right'].set_visible(False)
+ax2.spines['top'].set_visible(False)
+ax2.set_xlabel('Density $d$ relative to benchmark')
+ax2.set_ylabel('Coefficient')
+#ax2.set_ylim(0.33,1.8)
+ax2.plot(density,betaframe['realbeta'],':',color='saddlebrown',label='$\\beta$', marker='s')
+ax2.plot(density_nobeh,betalamd_nobeh,color='olive',label='$\\hat{\\beta} $ Baseline Spatial-SIR data', marker='^')
+ax2.plot(density,beh_betalamd,color='darkorange',label='$\\hat{\\beta}$ Behavioral Spatial-SIR data', marker='o')
+ax2.legend()
+#ax2.axhline(y=1, color='grey',linewidth=.5 )    
+
+fig.tight_layout()
+plt.savefig(imagedir+'est_densitybetas.pdf')
+plt.close()
 
 #%% Apply policy in SIR using the estimated beta, baseline
 if __name__ == "__main__":
@@ -1136,6 +1133,7 @@ if __name__ == "__main__":
     ax3.add_artist(l3)
     fig.tight_layout()
     plt.savefig(imagedir+'estimatedbeta_policies.pdf')
+    plt.close()
 
 #%% Apply policy in SIR using the estimated beta, behavioral
 if __name__ == "__main__":
@@ -1146,7 +1144,7 @@ if __name__ == "__main__":
     shutday = 20
     
     # importing from estimates in sim_estimate_dens.do
-    betaframe_beh = pd.read_csv(outputdir+'dens-behbetas.csv')
+    betaframe_beh = pd.read_csv(outputdir+'dens-beh_pbetas.csv')
     betaframe_beh['truebeta']= 0.054*13.5*betaframe_beh['density']   
 
     baseline = 25600
@@ -1285,6 +1283,7 @@ if __name__ == "__main__":
     ax3.add_artist(l3)
     fig.tight_layout()
     plt.savefig(imagedir+'estimatedbeta_beh-policies.pdf')
+    plt.close()
 
 #%% prediction plots
     import pandas as pd
@@ -1382,3 +1381,4 @@ if __name__ == "__main__":
     ax3.add_artist(la)
     fig.tight_layout()
     plt.savefig(imagedir+'prediction_withbias.pdf')
+    plt.close()

@@ -745,13 +745,13 @@ if __name__ == '__main__':
     
     kwargs = benchkwargs.copy()
     nboots = 5
-    nprocs = 10
+    nprocs = 7
     
     iterlist = []
     
     # change seeds
     for citysize in (1/np.sqrt(np.arange(.5, 1.6, .1))):
-        for shutdate in np.arange(15,40,5) :
+        for shutdate in np.arange(15,41,5) :
             for shutdown in ( [shutdate, 0.25], [999, 0] ) :
                 newkw = benchkwargs.copy()
                 newkw['q_citysize'] = citysize
@@ -771,7 +771,7 @@ if __name__ == '__main__':
     pickle.dump(allRandmodels2,file)
     file.close()
     
-#%% create csv data
+# create csv data
     file = gzip.open(outputdir+'dens-beh_p-times-25pc.gz','rb')
     allRandmodels = pickle.load(file)
     file.close()

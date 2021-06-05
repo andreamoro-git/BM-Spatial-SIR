@@ -1,10 +1,12 @@
+* generates table with estimates and "true" parameters when there are
+* multiple treatment times
 
-capture log close
-log using sim_estimate_policies_multitimes.log, text replace
-
+local basedir = "output/nc5-"
 local filetype = "dens"
+capture log close
+log using `basedir'sim_estimate_policies_multitimes.log, text replace
 
-insheet using ../output/nc5-`filetype'-times-25pc.csv, comma clear
+insheet using `basedir'`filetype'-times-25pc.csv, comma clear
 set seed 2443
 
 // drop observations before peak or not
@@ -51,74 +53,74 @@ replace treated = 1 if npi_date==15 & t>=15
 
 xtreg growthi i.t treated##c.density if mysample==1, fe
 scalar g0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Growth rate, Model, Baselineint, Specification, Estimated) replace
+regsave using `basedir'resultsest, addlabel(Outcome, Growth rate, Model, Baselineint, Specification, Estimated) replace
 xtreg growthi i.t treated##c.density, fe
 scalar gall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Growth rate, Model, Baselineint, Specification, True) replace
+regsave using `basedir'resultstrue, addlabel(Outcome, Growth rate, Model, Baselineint, Specification, True) replace
 xtreg outside i.t treated##c.density if mysample==1, fe
 scalar o0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Contacts, Model, Baselineint, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Contacts, Model, Baselineint, Specification, Estimated) append
 xtreg outside i.t treated##c.density, fe
 scalar oall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Contacts, Model, Baselineint, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Contacts, Model, Baselineint, Specification, True) append
 xtreg active i.t treated##c.density if mysample==1, fe
 scalar ac0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Infected, Model, Baselineint, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Infected, Model, Baselineint, Specification, Estimated) append
 xtreg active i.t treated##c.density, fe
 scalar acall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Infected, Model, Baselineint, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Infected, Model, Baselineint, Specification, True) append
 
 preserve
-use resultsest, clear
+use `basedir'resultsest, clear
 keep if var=="1.treated" | var=="1.treated#c.density"
 rename coef Estimated
 gen Estimated2 = Estimated if var=="1.treated#c.density"
 replace Estimated = . if var=="1.treated#c.density"
 collapse (max)Estimate*, by(Outcome Model)
-save resultsest, replace
+save `basedir'resultsest, replace
 list
-use resultstrue, clear
+use `basedir'resultstrue, clear
 keep if var=="1.treated" | var=="1.treated#c.density"
 rename coef True
 gen True2 = True if var=="1.treated#c.density"
 replace True = . if var=="1.treated#c.density"
 collapse (max)True*, by(Outcome Model)
-save resultstrue, replace
+save `basedir'resultstrue, replace
 list
-restore 
+restore
 
 // no interaction
 xtreg growthi i.t treated if mysample==1, fe
 scalar g0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Growth rate, Model, Baseline, Specification, Estimated) append
 xtreg growthi i.t treated, fe
 scalar gall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Growth rate, Model, Baseline, Specification, True) append
 xtreg outside i.t treated if mysample==1, fe
 scalar o0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Contacts, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Contacts, Model, Baseline, Specification, Estimated) append
 xtreg outside i.t treated, fe
 scalar oall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Contacts, Model, Baseline, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Contacts, Model, Baseline, Specification, True) append
 xtreg active i.t treated if mysample==1, fe
 scalar ac0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Infected, Model, Baseline, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Infected, Model, Baseline, Specification, Estimated) append
 xtreg active i.t treated, fe
 scalar acall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Infected, Model, Baseline, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Infected, Model, Baseline, Specification, True) append
 
-use resultsest, clear
+use `basedir'resultsest, clear
 keep if var=="treated" | Model=="Baselineint"
 replace Estimated = coef if var=="treated"
-save resultsest, replace
+save `basedir'resultsest, replace
 sort Outcome
 list Out Mod Est*
 
-use resultstrue, clear
+use `basedir'resultstrue, clear
 keep if var=="treated" | Model=="Baselineint"
 replace True = coef if var=="treated"
-save resultstrue, replace
-merge 1:1 Outcome Model using resultsest
+save `basedir'resultstrue, replace
+merge 1:1 Outcome Model using `basedir'resultsest
 sort Outcome
 list Out Mod True* Est*
 gen sortvar = 1 if Outcome=="Infected"
@@ -127,7 +129,7 @@ replace sortvar = 3 if Outcome=="Growth rate"
 
 drop _merge
 sort Outcome Model
-save allresults, replace
+save `basedir'allresults, replace
 
 ********
 * now with behavioral responses
@@ -135,7 +137,7 @@ save allresults, replace
 
 local filetype = "dens-beh_p"
 
-insheet using ../output/nc5-`filetype'-times-25pc.csv, comma clear
+insheet using `basedir'`filetype'-times-25pc.csv, comma clear
 set seed 2443
 // drop observations before peak or not
 *local drop " if t>tm"
@@ -181,75 +183,75 @@ replace treated = 1 if npi_date==15 & t>=15
 
 xtreg growthi i.t treated##c.density if mysample==1, fe
 scalar g0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Growth rate, Model, Beh_Baselineint, Specification, Estimated) replace
+regsave using `basedir'resultsest, addlabel(Outcome, Growth rate, Model, Beh_Baselineint, Specification, Estimated) replace
 xtreg growthi i.t treated##c.density, fe
 scalar gall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Growth rate, Model, Beh_Baselineint, Specification, True) replace
+regsave using `basedir'resultstrue, addlabel(Outcome, Growth rate, Model, Beh_Baselineint, Specification, True) replace
 xtreg outside i.t treated##c.density if mysample==1, fe
 scalar o0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Contacts, Model, Beh_Baselineint, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Contacts, Model, Beh_Baselineint, Specification, Estimated) append
 xtreg outside i.t treated##c.density, fe
 scalar oall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Contacts, Model, Beh_Baselineint, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Contacts, Model, Beh_Baselineint, Specification, True) append
 xtreg active i.t treated##c.density if mysample==1, fe
 scalar ac0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Infected, Model, Beh_Baselineint, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Infected, Model, Beh_Baselineint, Specification, Estimated) append
 xtreg active i.t treated##c.density, fe
 scalar acall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Infected, Model, Beh_Baselineint, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Infected, Model, Beh_Baselineint, Specification, True) append
 
 preserve
-use resultsest, clear
+use `basedir'resultsest, clear
 keep if var=="1.treated" | var=="1.treated#c.density"
 rename coef Estimated
 gen Estimated2 = Estimated if var=="1.treated#c.density"
 replace Estimated = . if var=="1.treated#c.density"
 collapse (max)Estimate*, by(Outcome Model)
-save resultsest, replace
+save `basedir'resultsest, replace
 list
-use resultstrue, clear
+use `basedir'resultstrue, clear
 keep if var=="1.treated" | var=="1.treated#c.density"
 rename coef True
 gen True2 = True if var=="1.treated#c.density"
 replace True = . if var=="1.treated#c.density"
 collapse (max)True*, by(Outcome Model)
-save resultstrue, replace
+save `basedir'resultstrue, replace
 list
-restore 
+restore
 
 
 // no interaction
 xtreg growthi i.t treated if mysample==1, fe
 scalar g0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Growth rate, Model, Beh_Baseline, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Growth rate, Model, Beh_Baseline, Specification, Estimated) append
 xtreg growthi i.t treated, fe
 scalar gall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Growth rate, Model, Beh_Baseline, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Growth rate, Model, Beh_Baseline, Specification, True) append
 xtreg outside i.t treated if mysample==1, fe
 scalar o0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Contacts, Model, Beh_Baseline, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Contacts, Model, Beh_Baseline, Specification, Estimated) append
 xtreg outside i.t treated, fe
 scalar oall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Contacts, Model, Beh_Baseline, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Contacts, Model, Beh_Baseline, Specification, True) append
 xtreg active i.t treated if mysample==1, fe
 scalar ac0 = e(ll)
-regsave using resultsest, addlabel(Outcome, Infected, Model, Beh_Baseline, Specification, Estimated) append
+regsave using `basedir'resultsest, addlabel(Outcome, Infected, Model, Beh_Baseline, Specification, Estimated) append
 xtreg active i.t treated, fe
 scalar acall = e(ll)
-regsave using resultstrue, addlabel(Outcome, Infected, Model, Beh_Baseline, Specification, True) append
+regsave using `basedir'resultstrue, addlabel(Outcome, Infected, Model, Beh_Baseline, Specification, True) append
 
-use resultsest, clear
+use `basedir'resultsest, clear
 keep if var=="treated" | Model=="Beh_Baselineint"
 replace Estimated = coef if var=="treated"
-save resultsest, replace
+save `basedir'resultsest, replace
 sort Outcome
 list Out Mod Est*
 
-use resultstrue, clear
+use `basedir'resultstrue, clear
 keep if var=="treated" | Model=="Beh_Baselineint"
 replace True = coef if var=="treated"
-save resultstrue, replace
-merge 1:1 Outcome Model using resultsest
+save `basedir'resultstrue, replace
+merge 1:1 Outcome Model using `basedir'resultsest
 sort Outcome
 list Out Mod True* Est*
 gen sortvar = 1 if Outcome=="Infected"
@@ -259,7 +261,7 @@ replace sortvar = 3 if Outcome=="Growth rate"
 sort Outcome Model
 drop _merge
 
-merge Outcome Model using allresults
+merge Outcome Model using `basedir'allresults
 gen modsort= Model=="Beh_Baseline" | Model=="Beh_Baselineint"
 
 replace Outcome = "\multirow{2}{*}{"+Outcome+"}"
@@ -270,15 +272,12 @@ replace modsort = -1 if _n==_N-1
 replace Outcome = " \\ \multicolumn{5}{c}{Without behavioral responses} \\ \midrule " if _n==_N-1
 replace modsort = 0.5 if _n==_N
 replace Outcome = " \\ \multicolumn{5}{c}{With behavioral responses} \\ \midrule " if _n==_N
-sort  modsort sortvar Model 
+sort  modsort sortvar Model
 
 list modsort Model Out True Estimated True2 Estimated2
 
 format True* Estim* %10.3f
-listtex Out True Estimated True2 Estimated2
-listtex Out True Estimated True2 Estimated2 using ../output/estimates-multitimes.tex, type rstyle(tabular) head(\begin{tabular}{lcccc} \toprule & \multicolumn{2}{c}{Treated} & \multicolumn{2}{c}{Treated\#Density}  \\ Outcome  & True & Estimated & True & Estimated \\ \midrule \\ ) foot("\bottomrule \end{tabular}")
-
-list Outcome Model True_nosd Estimated
-listtex Outcome Model True_nosd Estimated, type rstyle(tabular) head("\begin{tabular}{llcc}" "\midrule Outcome & Model & True &  Estimated \\ \midrule") foot("\bottomrule \end{tabular}")
+list True Estimated True2 Estimated2
+listtex Out True Estimated True2 Estimated2 using ../output/estimates-multitimes.tex, replace type rstyle(tabular) head(\begin{tabular}{lcccc} \toprule & \multicolumn{2}{c}{Treated} & \multicolumn{2}{c}{Treated\#Density}  \\ Outcome  & True & Estimated & True & Estimated \\ \midrule \\ ) foot("\bottomrule \end{tabular}")
 
 log close
