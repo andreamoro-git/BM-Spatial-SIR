@@ -3,9 +3,9 @@
 """
 Created on Thu Aug  6 19:36:26 2020
 
-Code in this file replicates all figures in 
+Code in this file replicates all figures in
 
-Alberto Bisin and Andrea Moro, 
+Alberto Bisin and Andrea Moro,
 "Learning Epidemiology by Doing: The Empirical Implications of
 a Spatial SIR Model with Behavioral Responses,"
 NBER Working Paper 27590, June 2020
@@ -23,13 +23,13 @@ import matplotlib.gridspec as gridspec
 
 import labellines
 # this can be commented out if your system does not have or cannot
-# read a LaTeX distribution. 
+# read a LaTeX distribution.
 matplotlib.rcParams.update({
     "text.usetex": True,
     "font.family": "serif",
     "font.serif": ["Computer Modern Roman"]})
 
-prefix= 'nc5-' 
+prefix= 'nc5-'
 outputdir = 'output/'+prefix
 benchkwargs = {
     "q_seed" : 2443,
@@ -46,7 +46,7 @@ benchkwargs = {
     "q_days"      : 300,
     "q_printOption" : 0.6,
     'g_maxinf'    : 1,
-}  
+}
 
 imagedir = 'output/images/'+prefix+'b'
 
@@ -59,24 +59,24 @@ imagedir = 'output/images/'+prefix
 
 fsize = 3.3
 
-#%% Spatial progression of infections, benchmarkmodel 
+#%% Spatial progression of infections, benchmarkmodel
 
-from class_spatialModels import spatialSAYDR    
+from class_spatialModels import spatialSAYDR
 
 printdays = [3, 10, 20, 30]
 kwargs = deepcopy(benchkwargs)
 kwargs['q_days'] = np.max(printdays) + 1
 
 m = spatialSAYDR(**kwargs)
-  
+
 for day in range(1,m.q_days):
 
     print(m.computeStats(day,1))
     if day in printdays:
         m.drawPositions(day,savefig='baseline',S=True,folder=imagedir,ext='.png')
         pass
-    m.aDayInTheLife(day) 
-      
+    m.aDayInTheLife(day)
+
     if np.sum(m.state==m.I)+np.sum(m.state==m.Y) <=15:
         break
 
@@ -88,15 +88,15 @@ kwargs['p_cluster']   = 'random'
 kwargs['q_days'] = np.max(printdays) + 1
 
 m = spatialSAYDR(**kwargs)
-  
+
 for day in range(1,m.q_days):
 
     print(m.computeStats(day,1))
     if day in printdays:
         m.drawPositions(day,savefig='randomcluster',S=True,folder=imagedir,ext='.png')
         pass
-    m.aDayInTheLife(day) 
-      
+    m.aDayInTheLife(day)
+
     if np.sum(m.state==m.I)+np.sum(m.state==m.Y) <=15:
         break
 
@@ -109,26 +109,26 @@ kwargs['p_avgstep'] = 0
 kwargs['q_days'] = np.max(printdays) + 1
 
 m = spatialSAYDR(**kwargs)
-  
+
 for day in range(1,m.q_days):
 
     print(m.computeStats(day,1))
     if day in printdays:
         m.drawPositions(day,savefig='nomove',S=True,folder=imagedir,ext='.png')
         pass
-    m.aDayInTheLife(day) 
-      
+    m.aDayInTheLife(day)
+
     if np.sum(m.state==m.I)+np.sum(m.state==m.Y) <=15:
         break
 
 #%% Initial location in space, heterogeneous density model
 
 from class_spatialModels import spSAYDR_hetDensity
-    
+
 mod1 = spSAYDR_hetDensity(q_lambda=1,**benchkwargs)
-mod1.drawPositions(0,{'savefig':'hetdens','folder':imagedir,'S': True, 
+mod1.drawPositions(0,{'savefig':'hetdens','folder':imagedir,'S': True,
                       'colors':['grey','orange','orange','red','green'], 'ext':'.png'}, )
-    
+
 
 #%% Statistics reported in paper, section Local Herd Immunity ( \label{sec:SIRcomp})
 
@@ -162,11 +162,11 @@ bavg = averageStats(b)
 file1.close()
 
 dfb = pd.DataFrame()
-logsb = pd.DataFrame()    
+logsb = pd.DataFrame()
 for idx,m in enumerate(b) :
     dfb[idx] = np.sum(m.nstates[:,1:3],axis=1)
     dfb[str(idx)+'L1'] = dfb[idx].shift()
-    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])        
+    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])
 
 # Random locations
 file = gzip.open(outputdir+'allrandmodels.pickle.gz','rb')
@@ -205,7 +205,7 @@ l1=ax.plot(np.arange(len(dfSIRld)),dfSIRld,':', linewidth=2, color='saddlebrown'
 l2=ax.plot(np.arange(days),logs.mean(axis=1)[:days],'--', color='darkorange',
         label ='\parbox{10em}{Spatial-SIR\\newline with random positions}')[0]
 l3=ax.plot(np.arange(days),logsb.mean(axis=1)[:days],color='olive',label ='Spatial-SIR')[0]
- 
+
 days=aa.SIR[:,0].size
 sstateSIR = str(np.round(1-aa.SIR[days-1,0]/25600,2))
 sstater = str(np.round(np.max(ravg.prtinf),2))
@@ -217,11 +217,11 @@ ax2.set_xlabel('Days ')
 ax2.set_xlim(-1,92)
 ax2.set_ylim(0,0.52)
 ax2.plot(np.arange(days),aa.SIR[:days,1]/25600,':', linewidth=2, color='saddlebrown',label = sstateSIR)
-ax2.plot(np.arange(days),ravg.prinf[:days],'--', color='darkorange', label =sstater)   
+ax2.plot(np.arange(days),ravg.prinf[:days],'--', color='darkorange', label =sstater)
 ax2.plot(np.arange(days),bavg.prinf[:days],color='olive',label = sstateb)
 
 ax2.legend(title='$\\frac{R_\\infty}{N}$', bbox_to_anchor=(.52,.3), title_fontsize=15)
- 
+
 line_labels=['SIR',
              '\parbox{10em}{Spatial-SIR\\newline with random positions}',
              'Spatial-SIR']
@@ -243,11 +243,11 @@ bavg = averageStats(b)
 file1.close()
 
 dfb = pd.DataFrame()
-logsb = pd.DataFrame()    
+logsb = pd.DataFrame()
 for idx,m in enumerate(b) :
     dfb[idx] = np.sum(m.nstates[:,1:3],axis=1)
     dfb[str(idx)+'L1'] = dfb[idx].shift()
-    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])        
+    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])
 
 # Random locations
 file = gzip.open(outputdir+'random.pickle.gz','rb')
@@ -277,7 +277,7 @@ ax.set_xlim(-1,95)
 l0= ax.plot(np.arange(days),logs.mean(axis=1)[:days],'--', color='darkorange',
         label ='\parbox{10em}{Spatial-SIR \newline with random outbreaks}')[0]
 l1=ax.plot(np.arange(days),logsb.mean(axis=1)[:days],color='olive',label ='Spatial-SIR')[0]
- 
+
 days=aa.SIR[:,0].size
 sstateSIR = str(np.round(1-aa.SIR[days-1,0]/25600,2))
 sstater = str(np.round(np.max(ravg.prtinf),2))
@@ -289,11 +289,11 @@ ax2.set_xlabel('Days ')
 ax2.set_xlim(-1,92)
 ax2.set_ylim(0,0.3)
 ax2.set_yticks(np.arange(0,0.31,.1))
-ax2.plot(np.arange(days),ravg.prinf[:days],'--', color='darkorange', label =sstater)   
+ax2.plot(np.arange(days),ravg.prinf[:days],'--', color='darkorange', label =sstater)
 ax2.plot(np.arange(days),bavg.prinf[:days],color='olive',label = sstateb)
 
 ax2.legend(title='$\\frac{R_\\infty}{N}$', bbox_to_anchor=(.52,.42), title_fontsize=15)
- 
+
 line_labels=['Random outbreaks',
              'Baseline Spatial-SIR']
 
@@ -306,7 +306,7 @@ fig.tight_layout()
 
 plt.savefig(imagedir+'short-random-rates.pdf')
 plt.close()
-    
+
 print('Peak active, baseline',np.round(max(bavg.prinf),2)
       ,'day ',np.where(max(bavg.prinf)==bavg.prinf)[0])
 print('Peak active, random',np.round(max(ravg.prinf),2)
@@ -316,7 +316,7 @@ print('Steady state infected baseline', np.round(avgmaxinf,4))
 avgmaxinf2 = np.average(list(map(lambda x: np.max(x.prtinf),rand)))
 print('Steady state infected random', np.round(avgmaxinf2,4))
 
-#%%  SIR model city size 
+#%%  SIR model city size
 
 file1 = gzip.open(outputdir+'basesim.pickle.gz','rb')
 file2 = gzip.open(outputdir+'basesize2.pickle.gz','rb')
@@ -329,7 +329,7 @@ file1.close()
 b2 = pickle.load(file2)
 s_b2avg = averageStats(b2)
 file2.close()
-    
+
 q = pickle.load(fileq)
 s_qavg = averageStats(q)
 fileq.close()
@@ -343,9 +343,9 @@ recRate = benchkwargs['p_probr'][0]
 bavg = SIRmodel(contRate*13.5, recRate, q_popsize=popSize, q_init=cluster)
 b2avg = SIRmodel(contRate*13.5, recRate, q_popsize=popSize*4, q_init=cluster)
 sqavg = SIRmodel(contRate*13.5, recRate, q_popsize=popSize/4, q_init=cluster)
-  
+
 maxday=bavg.day
-day2= b2avg.day    
+day2= b2avg.day
 dayq= sqavg.day
 
 fig,(ax12,ax2) = plt.subplots(1,2,figsize=(2*fsize,fsize))
@@ -368,7 +368,7 @@ ax2.set_xlabel('Days ')
 
 s_qavg.prtinf[s_qavg.minlastday:] = s_qavg.prtinf[s_qavg.minlastday]
 s_bavg.prtinf[s_bavg.minlastday:] = s_bavg.prtinf[s_bavg.minlastday]
-   
+
 #spatial SIR
 
 m2 = str(np.round(np.max(s_b2avg.prtinf),2))
@@ -381,7 +381,7 @@ ll1 = ax12.plot(np.arange(g_plotdays),s_b2avg.prinf[0:g_plotdays],':',c='saddleb
 ax12.legend(title='${R_\\infty}/{N}$', bbox_to_anchor=(.23,.25), title_fontsize=11)
 #ax12.set_title(title='Infected')
 g_plotdays = 70
- 
+
 ax2.set_xticks(np.arange(0,201,20))
 
 
@@ -421,29 +421,29 @@ print('Steady state infected 1.4', np.round(avgmaxinf3,4))
 print('Sir DAYS to peak',np.where(max(bavg.prinf)==bavg.prinf)[0]
       ,np.where(max(b2avg.prinf)==b2avg.prinf)[0],
       np.where(max(sqavg.prinf)==sqavg.prinf)[0])
-   
+
 #%% Baseline vs 6*contagious, 1/6*density
 
 
 file = gzip.open(outputdir+'basesim.pickle.gz','rb')
 b = pickle.load(file)
 file.close()
-    
+
 file = gzip.open(outputdir+'benchmark_6x_cont.pickle.gz','rb')
 benchplushuge  = pickle.load(file)
 file.close()
 
-# benchmark plus (Y contagious)   
+# benchmark plus (Y contagious)
 dfb = pd.DataFrame()
-logsb = pd.DataFrame()    
+logsb = pd.DataFrame()
 for idx,m in enumerate(b) :
     dfb[idx] = np.sum(m.nstates[:,1:3],axis=1)
     dfb[str(idx)+'L1'] = dfb[idx].shift()
-    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])        
-    
-# benchmark plus huge 
+    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])
+
+# benchmark plus huge
 df6 = pd.DataFrame()
-logs6 = pd.DataFrame()    
+logs6 = pd.DataFrame()
 for idx,m in enumerate(benchplushuge) :
     df6[idx] = np.sum(m.nstates[:,1:3],axis=1)
     df6[str(idx)+'L1'] = df6[idx].shift()
@@ -495,7 +495,7 @@ fig.tight_layout()
 plt.savefig(imagedir+'short-density_contagion1.pdf')
 plt.close()
 
-#%% Different city density (different size same population) 
+#%% Different city density (different size same population)
 
 file1 = gzip.open(outputdir+'basesim.pickle.gz','rb')
 b = pickle.load(file1)
@@ -546,7 +546,7 @@ print('Steady state infected 2*', np.round(avgmaxinf2,4))
 sirmaxa = np.round(np.max(bavg.SIR[:,2])/(25600),2)
 sirmax2 = np.round(np.max(b2avg.SIR[:,2])/(25600*4),2)
 sirmaxh = np.round(np.max(sqavg.SIR[:,2])/(25600/4),2)
-  
+
 print('Sir DAYS to peak',np.where(max(bavg.prinf)==bavg.prinf)[0]
       ,np.where(max(b2avg.prinf)==b2avg.prinf)[0],
       np.where(max(sqavg.prinf)==sqavg.prinf)[0])
@@ -565,7 +565,7 @@ print('Steady state infected 1/2*', np.round(sirmaxh,4))
 
 
 maxday=bavg.day
-day2= b2avg.day    
+day2= b2avg.day
 dayq= sqavg.day
 
 fig,(ax12,ax2) = plt.subplots(1,2,figsize=(2*fsize,fsize))
@@ -588,7 +588,7 @@ ax2.set_xlabel('Days ')
 
 s_qavg.prtinf[s_qavg.minlastday:] = s_qavg.prtinf[s_qavg.minlastday]
 s_bavg.prtinf[s_bavg.minlastday:] = s_bavg.prtinf[s_bavg.minlastday]
-   
+
 #spatial SIR
 
 ll3 = ax12.plot(np.arange(g_plotdays),s_b2avg.prinf[0:g_plotdays],'--',c='darkorange',label=avgmaxinf2)[0]
@@ -597,7 +597,7 @@ ll1 = ax12.plot(np.arange(g_plotdays),s_qavg.prinf[0:g_plotdays],':',c='saddlebr
 
 #ax12.set_title(title='Infected')
 g_plotdays = 70
- 
+
 ax2.set_xticks(np.arange(0,201,20))
 ax2.plot(np.arange(g_plotdays),b2avg.prinf[0:g_plotdays],'--',c='darkorange',label=sirmax2)
 ax2.plot(np.arange(g_plotdays),bavg.prinf[0:g_plotdays],c='olive',label=sirmaxa)
@@ -616,7 +616,7 @@ ax2.set_title('SIR')
 
 fig.tight_layout()
 plt.savefig(imagedir+'short-3densities.pdf')
-plt.close()           
+plt.close()
 
 #%% Heterogeneous density
 
@@ -652,10 +652,10 @@ ax2.legend(loc='upper right')
 
 fig.tight_layout()
 plt.savefig(imagedir+'hetdens1.pdf')
-plt.close()  
+plt.close()
 
-#%% Different movement speed 
- 
+#%% Different movement speed
+
 # Baseline model
 file1 = gzip.open(outputdir+'basesim.pickle.gz','rb')
 b = pickle.load(file1)
@@ -767,9 +767,13 @@ line_labels=['Baseline Spatial-SIR',
 # ax1.legend(bbox_to_anchor=(1, .61), loc='center right',title='Infected + Recovered')
 # ax2.legend(bbox_to_anchor=(1, .3),loc='center right',title='Infected \hspace{.02em} (right scale)')
 
+
+
+
 fig.tight_layout()
-plt.savefig(imagedir+'short-nomovement-rateslarge.pdf') 
+plt.savefig(imagedir+'short-nomovement-rateslarge.pdf')
 plt.close()
+
 
 
 #%% Behavioral model, reduction of contacts
@@ -799,7 +803,7 @@ ax.set_ylabel('Fraction of population')
 ax.plot(np.arange(days), 1-bLon.fracNotScared[:days], color='darkorange', label = 'Behavioral Spatial SIR')
 ax.plot(np.arange(days), 1-bb.fracNotScared[:days], '--', color='darkorange', label = 'Behavioral SIR')
 ax.legend()
-fig.tight_layout()    
+fig.tight_layout()
 plt.savefig(imagedir+'SIR_beh_responses.pdf')
 plt.close()
 
@@ -810,23 +814,23 @@ file = gzip.open(outputdir+'basesim.pickle.gz','rb')
 benchplus = pickle.load(file)
 file.close()
 dfb = pd.DataFrame()
-logsb = pd.DataFrame()    
+logsb = pd.DataFrame()
 for idx,m in enumerate(benchplus) :
     dfb[idx] = np.sum(m.nstates[:,1:3],axis=1)
     dfb[str(idx)+'L1'] = dfb[idx].shift()
-    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])        
+    logsb[str(idx)] = np.log(dfb[idx]) - np.log(dfb[str(idx)+'L1'])
 
 # load behavioral
 file = gzip.open(outputdir+'basebehLones.pickle.gz','rb')
 lones = pickle.load(file)
 file.close()
 dfLon = pd.DataFrame()
-logLon = pd.DataFrame()    
+logLon = pd.DataFrame()
 for idx,m in enumerate(lones) :
     dfLon[idx] = np.sum(m.nstates[:,1:3],axis=1)
     dfLon[str(idx)+'L1'] = dfLon[idx].shift()
-    logLon[str(idx)] = np.log(dfLon[idx]) - np.log(dfLon[str(idx)+'L1'])        
-    
+    logLon[str(idx)] = np.log(dfLon[idx]) - np.log(dfLon[str(idx)+'L1'])
+
 # generate standard SIR data
 popSize = benchkwargs['q_popsize']
 cluster = 30
@@ -872,7 +876,7 @@ ax2.plot(np.arange(days),aa.SIR[:days,1]/25600,'--',color='olive',label = maSIR)
 ax2.plot(np.arange(days),bb.SIR[:days,1]/25600,'-.',color='darkorange',label = mbSIR)[0]
 ax2.plot(np.arange(days),bp.prinf[:days],color='olive',label =mb)[0]
 ax2.plot(np.arange(days),bLon.prinf[:days],':',linewidth=1.9, color='darkorange',label = mLon)[0]
- 
+
 ax2.legend(title='$\\frac{R_\\infty}{N}$', bbox_to_anchor=(.52,.38), title_fontsize=15)
 ax.set_title('Growth rate')
 ax2.set_title('Infected ')
@@ -883,7 +887,7 @@ line_labels=['SIR','Behavioral SIR','Baseline Spatial-SIR',
 fig.legend([li1,li2,li3,li4],line_labels, bbox_to_anchor=(.65,.85), fontsize= 12, framealpha=1)
 
 
-fig.tight_layout()    
+fig.tight_layout()
 plt.savefig(imagedir+'SIR_beh.pdf')
 plt.close()
 
@@ -919,7 +923,7 @@ ax.set_xlabel('Days ')
 
 lb1 = ax.plot(np.arange(days), 1-bLonL.fracNotScared[:days],'', color='olive', label = 'Behavioral Spatial SIR (local)')[0]
 lb2 = ax.plot(np.arange(days), 1-bLon.fracNotScared[:days],':', linewidth=1.9, color='darkorange', label = 'Behavioral Spatial SIR')[0]
- 
+
 #plt.savefig(imagedir+'SIR_beh_responses_local.pdf')
 
 ## %% Behavioral responses, comparison with benchmark
@@ -928,6 +932,7 @@ days = 112
 
 mb1 = np.round(np.max(bLonL.prtinf),2)
 mb2 = np.round(np.max(bLon.prtinf),2)
+
 
 
 ax2.spines['right'].set_visible(False)
@@ -951,11 +956,11 @@ line_labels=['Behavioral Spatial-SIR (local)',
 
 fig.legend([lb1,lb2],line_labels, bbox_to_anchor=(.7,.85), fontsize= 12, framealpha=1)
 
-fig.tight_layout()    
+fig.tight_layout()
 plt.savefig(imagedir+'SIR_beh_local.pdf')
 plt.close()
 
- 
+
 #%% Figure comparing estimated betas in baseline and behavioral with real beta
 
 #   Before doing this, run sim_estimate_dens.do in stata to generate densbetas.csv
@@ -967,8 +972,8 @@ betalamd_nobeh = betaframe_nobeh['beta']
 betaframe = pd.read_csv(outputdir+'dens-beh_pbetas.csv')
 density = betaframe['density']
 beh_betalamd = betaframe['beta']
-betaframe['realbeta']= 0.054*13.5*betaframe['density']   
- 
+betaframe['realbeta']= 0.054*13.5*betaframe['density']
+
 fig,(ax2) = plt.subplots(1,1,figsize=(fsize,fsize))
 ax2.spines['right'].set_visible(False)
 ax2.spines['top'].set_visible(False)
@@ -979,7 +984,6 @@ ax2.plot(density,betaframe['realbeta'],':',color='saddlebrown',label='$\\beta$',
 ax2.plot(density_nobeh,betalamd_nobeh,color='olive',label='$\\hat{\\beta} $ Baseline Spatial-SIR data', marker='^')
 ax2.plot(density,beh_betalamd,color='darkorange',label='$\\hat{\\beta}$ Behavioral Spatial-SIR data', marker='o')
 ax2.legend()
-#ax2.axhline(y=1, color='grey',linewidth=.5 )    
 
 fig.tight_layout()
 plt.savefig(imagedir+'est_densitybetas.pdf')
@@ -989,13 +993,13 @@ plt.close()
 if __name__ == "__main__":
     from class_SIRmodel import SIRmodel
     from class_averageStats import averageStats
-    
+
     thisdensity = 0.5
     shutday = 20
-    
+
     # importing from estimates in sim_estimate_dens.do
     betaframe_nobeh = pd.read_csv(outputdir+'densbetas.csv')
-    betaframe_nobeh['truebeta']= 0.054*13.5*betaframe_nobeh['density']   
+    betaframe_nobeh['truebeta']= 0.054*13.5*betaframe_nobeh['density']
 
     baseline = 25600
     cluster = 10
@@ -1006,12 +1010,12 @@ if __name__ == "__main__":
     # simulate effect of policy in SIR
     base = SIRmodel(beta, delta ,q_popsize=baseline, q_init=cluster, )
     policy = SIRmodel(beta, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
-    
-    # compare with effect of policy in Spatial-SIR   
+
+    # compare with effect of policy in Spatial-SIR
     file = gzip.open(outputdir+'dens-20-80-25pc.gz','rb')
     allRandmodels = pickle.load(file)
     file.close()
-    
+
     modbase = list()
     modpoli = list()
     for model in allRandmodels:
@@ -1021,8 +1025,8 @@ if __name__ == "__main__":
             else:
                 modpoli.append(model)
     avbase = averageStats(modbase)
-    avpoli = averageStats(modpoli)    
-    
+    avpoli = averageStats(modpoli)
+
     ##############
     thisdensity = 1
     shutday = 20
@@ -1035,7 +1039,7 @@ if __name__ == "__main__":
     policy2 = SIRmodel(beta2, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
     #base.plot(base.day)
     #policy.plot(policy.day)
-    
+
     # compare with effect of policy in Spatial-SIR
     modbase2 = list()
     modpoli2 = list()
@@ -1047,7 +1051,7 @@ if __name__ == "__main__":
                 modpoli2.append(model)
     avbase2 = averageStats(modbase2)
     avpoli2 = averageStats(modpoli2)
-    
+
     ##############
     thisdensity = 1.5
     shutday = 20
@@ -1060,7 +1064,7 @@ if __name__ == "__main__":
     policy3 = SIRmodel(beta3, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
     #base.plot(base.day)
     #policy.plot(policy.day)
-    
+
     # compare with effect of policy in Spatial-SIR
     modbase3 = list()
     modpoli3 = list()
@@ -1071,14 +1075,13 @@ if __name__ == "__main__":
             else:
                 modpoli3.append(model)
     avbase3 = averageStats(modbase3)
-    avpoli3 = averageStats(modpoli3)   
-    
-    
+    avpoli3 = averageStats(modpoli3)
+
     fsize=3.5
     days= 80
     fig = plt.figure(figsize=(3*fsize,fsize*1))
     spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
-    
+
     ax = fig.add_subplot(spec[0,0])
     ax2 = fig.add_subplot(spec[0,1])
     ax3 = fig.add_subplot(spec[0,2])
@@ -1090,7 +1093,7 @@ if __name__ == "__main__":
     ax.set_yticks(np.arange(0,0.16,.05))
     ax.plot(np.arange(20,days),avbase.prinf[20:days]-avpoli.prinf[20:days],color='olive',label ='Spatial-SIR')
     ax.plot(np.arange(20,days),base.SIR[20:days,1]/25600-policy.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
-    
+
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax2.set_xlabel('Days ')
@@ -1109,23 +1112,23 @@ if __name__ == "__main__":
     ax3.hlines(0,20,80,color='grey',lw=0.3)
     ax2.hlines(0,20,80,color='grey',lw=0.3)
     ax.hlines(0,20,80,color='grey',lw=0.3)
-    
+
     #first_legend =ax2.legend(bbox_to_anchor=(.48,.35), fontsize=10)
-    l2 = ax2.legend(handles=[],frameon=False, title_fontsize=12, 
+    l2 = ax2.legend(handles=[],frameon=False, title_fontsize=12,
                                title='Density 1 \n $\\hat{\\beta} ='+str(round(beta2,2))
                                 +'$',#' \n$  \\beta ='+str(round(truebeta2,2))+'$'
                                loc='upper left')
-    
+
     la =plt.legend(bbox_to_anchor=(-1.3,.8), fontsize=10, framealpha=1)
 
     #ax2.add_artist(a3)
 
-    l1 = ax.legend(handles=[], frameon=False, title_fontsize=12, 
+    l1 = ax.legend(handles=[], frameon=False, title_fontsize=12,
                          title='Density 0.5 \n $\\hat{\\beta} ='+str(round(beta,2))
                          +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
                          loc='upper left')
 
-    l3 = plt.legend(handles=[], frameon=False, title_fontsize=12, 
+    l3 = plt.legend(handles=[], frameon=False, title_fontsize=12,
                          title='Density 1.5 \n $\\hat{\\beta} ='+str(round(beta3,2))
                          +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
                          loc='upper left')
@@ -1139,13 +1142,13 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     from class_SIRmodel import SIRmodel
     from class_averageStats import averageStats
-    
+
     thisdensity = 0.5
     shutday = 20
-    
+
     # importing from estimates in sim_estimate_dens.do
     betaframe_beh = pd.read_csv(outputdir+'dens-beh_pbetas.csv')
-    betaframe_beh['truebeta']= 0.054*13.5*betaframe_beh['density']   
+    betaframe_beh['truebeta']= 0.054*13.5*betaframe_beh['density']
 
     baseline = 25600
     cluster = 10
@@ -1156,12 +1159,12 @@ if __name__ == "__main__":
     # simulate effect of policy in SIR
     base = SIRmodel(beta, delta ,q_popsize=baseline, q_init=cluster, )
     policy = SIRmodel(beta, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
-    
-    # compare with effect of policy in Spatial-SIR   
+
+    # compare with effect of policy in Spatial-SIR
     file = gzip.open(outputdir+'dens-beh_p-20-80-25pc.gz','rb')
     allRandmodels = pickle.load(file)
     file.close()
-    
+
     modbase = list()
     modpoli = list()
     for model in allRandmodels:
@@ -1171,8 +1174,8 @@ if __name__ == "__main__":
             else:
                 modpoli.append(model)
     avbase = averageStats(modbase)
-    avpoli = averageStats(modpoli)    
-    
+    avpoli = averageStats(modpoli)
+
     ##############
     thisdensity = 1
     shutday = 20
@@ -1185,7 +1188,7 @@ if __name__ == "__main__":
     policy2 = SIRmodel(beta2, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
     #base.plot(base.day)
     #policy.plot(policy.day)
-    
+
     # compare with effect of policy in Spatial-SIR
     modbase2 = list()
     modpoli2 = list()
@@ -1197,7 +1200,7 @@ if __name__ == "__main__":
                 modpoli2.append(model)
     avbase2 = averageStats(modbase2)
     avpoli2 = averageStats(modpoli2)
-    
+
     ##############
     thisdensity = 1.5
     shutday = 20
@@ -1210,7 +1213,7 @@ if __name__ == "__main__":
     policy3 = SIRmodel(beta3, delta, q_popsize=baseline, q_init=cluster, p_shutr=[shutday,.25], p_openr=[999,0])
     #base.plot(base.day)
     #policy.plot(policy.day)
-    
+
     # compare with effect of policy in Spatial-SIR
     modbase3 = list()
     modpoli3 = list()
@@ -1221,14 +1224,14 @@ if __name__ == "__main__":
             else:
                 modpoli3.append(model)
     avbase3 = averageStats(modbase3)
-    avpoli3 = averageStats(modpoli3)   
-    
-    
+    avpoli3 = averageStats(modpoli3)
+
+
     fsize=3.5
     days= 80
     fig = plt.figure(figsize=(3*fsize,fsize*1))
     spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
-    
+
     ax = fig.add_subplot(spec[0,0])
     ax2 = fig.add_subplot(spec[0,1])
     ax3 = fig.add_subplot(spec[0,2])
@@ -1240,7 +1243,7 @@ if __name__ == "__main__":
     ax.set_yticks(np.arange(0,0.16,.05))
     ax.plot(np.arange(20,days),avbase.prinf[20:days]-avpoli.prinf[20:days],color='olive',label ='Spatial-SIR')
     ax.plot(np.arange(20,days),base.SIR[20:days,1]/25600-policy.SIR[20:days,1]/25600,'--',color='darkorange',label ='SIR')
-    
+
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax2.set_xlabel('Days ')
@@ -1259,23 +1262,21 @@ if __name__ == "__main__":
     ax3.hlines(0,20,80,color='grey',lw=0.3)
     ax2.hlines(0,20,80,color='grey',lw=0.3)
     ax.hlines(0,20,80,color='grey',lw=0.3)
-    
-    #first_legend =ax2.legend(bbox_to_anchor=(.48,.35), fontsize=10)
-    l2 = ax2.legend(handles=[],frameon=False, title_fontsize=12, 
+
+    l2 = ax2.legend(handles=[],frameon=False, title_fontsize=12,
                                title='Density 1 \n $\\hat{\\beta} ='+str(round(beta2,2))
                                 +'$',#' \n$  \\beta ='+str(round(truebeta2,2))+'$'
                                loc='upper left')
-    
+
     la =plt.legend(bbox_to_anchor=(-1.3,.8), fontsize=10, framealpha=1)
 
     #ax2.add_artist(a3)
 
-    l1 = ax.legend(handles=[], frameon=False, title_fontsize=12, 
+    l1 = ax.legend(handles=[], frameon=False, title_fontsize=12,
                          title='Density 0.5 \n $\\hat{\\beta} ='+str(round(beta,2))
                          +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
                          loc='upper left')
-
-    l3 = plt.legend(handles=[], frameon=False, title_fontsize=12, 
+    l3 = plt.legend(handles=[], frameon=False, title_fontsize=12,
                          title='Density 1.5 \n $\\hat{\\beta} ='+str(round(beta3,2))
                          +'$', #'\n$ \\beta ='+str(round(truebeta,2))+'$',
                          loc='upper left')
@@ -1288,7 +1289,7 @@ if __name__ == "__main__":
 #%% prediction plots
     import pandas as pd
     fsize=3.5
-    popsize = 25600 
+    popsize = 25600
     nobeh = pd.read_csv('output/predictions.csv')
     beh = pd.read_csv('output/predictions_beh.csv')
 
@@ -1309,7 +1310,7 @@ if __name__ == "__main__":
     ax.set_yticks(np.arange(0,0.11,0.02))
     ax.set_ylim(0.01,0.08)
     ax.legend(handles=[], title='Infected', title_fontsize=12, frameon=False, loc='lower left')
-    
+
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax2.plot(nobeh['t'],nobeh['outside'], color='olive', )
@@ -1330,7 +1331,7 @@ if __name__ == "__main__":
     ax3.set_xlabel('Days ')
     ax3.set_ylim(-.12,0.025)
     la = ax3.legend(bbox_to_anchor=(0.2,0.48), framealpha=1)
-    l3 = plt.legend(handles=[], title='Growth rate', title_fontsize=12, frameon=False, 
+    l3 = plt.legend(handles=[], title='Growth rate', title_fontsize=12, frameon=False,
                     loc='lower center')
     ax3.add_artist(l3)
     ax3.add_artist(la)
@@ -1353,7 +1354,7 @@ if __name__ == "__main__":
     ax.set_yticks(np.arange(0,0.11,0.02))
     ax.set_ylim(0,0.113)
     ax.legend(handles=[], title='Infected', title_fontsize=12, frameon=False, loc='lower left')
-    
+
 
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
@@ -1375,7 +1376,7 @@ if __name__ == "__main__":
     ax3.set_xlabel('Days ')
     ax3.set_ylim(-.12,0.025)
     la = ax3.legend(bbox_to_anchor=(-0.85,0.9), framealpha=1)
-    l3 = plt.legend(handles=[], title='Growth rate', title_fontsize=12, frameon=False, 
+    l3 = plt.legend(handles=[], title='Growth rate', title_fontsize=12, frameon=False,
                     loc='lower left')
     ax3.add_artist(l3)
     ax3.add_artist(la)
