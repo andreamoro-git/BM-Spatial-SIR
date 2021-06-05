@@ -520,7 +520,7 @@ if __name__ == '__main__':
     }  
     
     nboots = 5
-    nprocs = 10
+    nprocs = 7 
     
     iterlist = []
     
@@ -596,7 +596,7 @@ if __name__ == '__main__':
     
     kwargs = benchkwargs.copy()
     nboots = 5
-    nprocs = 10
+    nprocs = 7
     
     iterlist = []
     
@@ -670,7 +670,7 @@ if __name__ == '__main__':
     
     kwargs = benchkwargs.copy()
     nboots = 5
-    nprocs = 10
+    nprocs = 7
     
     iterlist = []
     
