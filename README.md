@@ -151,7 +151,7 @@ To simulate the model and generate figures, all code can be run
 at once by executing from a shell (after appropriately modifying
 the path to the stata executable) from the root directory:
 
-- doall.sh
+- bash doall.sh
 
 Alternatively, run the following files from the root dir in this order:
 
