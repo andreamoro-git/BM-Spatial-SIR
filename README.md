@@ -60,7 +60,7 @@ This code has been run on a MacBook Pro, 1,7 GHz Quad-Core Intel Core i7 running
 
 - (optional) The python code was run using the IDE Spyder version 4.2.0
 
-- The code used to download and generate calibration data (provided in the distribution) and to generate data for figures and table for Section 7 was run with Stata 14.
+- Stata 14 (used only to generate calibration data -provided in the distribution- and to generate data for figures and table for Section 7)
 
 ### Memory and Runtime Requirements
 
