@@ -64,16 +64,14 @@ This code has been run on a MacBook Pro, 1,7 GHz Quad-Core Intel Core i7 running
 
 ### Memory and Runtime Requirements
 
-Most simulations take minutes to run on a standard (2020) desktop. The simulation of the model with city twice the size of the benchmark model may take a 1-2 hours depending on model parameters. We run 20 replications of each simulation using the multiprocessing package running 6 simulations in parallel. Depending on hardware, runtime can be reduced by increasing the value of the nprocs variable.
+Most simulations take minutes to run on a standard (2020) desktop. The simulation of the model with city twice the size of the benchmark model may take a 1-2 hours depending on model parameters. We run 20 replications of each simulation using the multiprocessing package running 7 simulations in parallel. Depending on hardware, runtime can be reduced by increasing the value of the processors variable.
 
-Simulation data is saved in pickle format under output/
-
-Figures from such data are generated in seconds (each)
+Figures from saved simulation data are generated in minutes
 
 #### Summary
 
-Approximate time needed to reproduce the analyses on a standard 2020 quad-core desktop machine: 10 hours
-The execution time can be shortened by reducing the number of replications of each simulation (variable nboots in each simulation) or increasing the number of processors.
+Approximate time needed to reproduce the analyses on a standard 2020 quad-core desktop machine with 4 cores / 8 threads: 10-12 hours
+The execution time can be shortened by reducing the number of replications of each simulation (variable nboots in each simulation) or increasing the number of processors (variable processors).
 
 #### Details
 
@@ -123,7 +121,7 @@ The random seed is set as spatialSAYDR attribute q_seed (row 33 of class_spatial
 
 ### License for Code
 
-This code is licensed under a Creative Commons/CC-BY-SA 4.0 (Attribution-ShareAlike 4.0 International) license. See LICENSE.txt for details.
+This code is licensed under a Creative Commons/CC-BY-SA 4.0 (Attribution-ShareAlike 4.0 International) license. See https://creativecommons.org/licenses/by-sa/4.0/ for details.
 
 We kindly ask academics using or adapting this code in scientific publications to cite our paper:
   Alberto Bisin and Andrea Moro. "JUE Insight: Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," Journal of Urban Economics, Forthcoming 2021
