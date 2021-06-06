@@ -1,4 +1,4 @@
-#python sim-paper.py
+python sim-paper.py
 /Applications/Stata/StataSE.app/Contents/MacOS/StataSE -b do stata/sim_estimate_dens.do &
 read -t 5 'running stata sim_estimate_dens.do'
 /Applications/Stata/StataSE.app/Contents/MacOS/StataSE -b do stata/sim_estimate_policies_multitimes-pdate20.do &

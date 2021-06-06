@@ -16,7 +16,7 @@ import time
 from copy import deepcopy
 
 prefix= 'nc5-'
-processors = 7
+processors = 6
 start_time = time.time()
 outputdir = 'output/'+prefix
 
@@ -77,7 +77,7 @@ from class_spatialModels import simulateRandPool
 if __name__ == '__main__':
 
     kwargs = deepcopy(benchkwargs)
-    nboots = 10
+    nboots = 20
     nprocs = processors
 
     iterlist = []
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     kwargs = deepcopy(benchkwargs)
-    nboots = 10
+    nboots = 20
     nprocs = processors
 
     # construct list to pass to processes
@@ -283,7 +283,7 @@ if __name__ == "__main__":
 
 #%% Different movement speed
 
-    nboots = 10
+    nboots = 20
     nprocs = processors
 
     # construct list to pass to processes
@@ -335,7 +335,7 @@ if __name__ == "__main__":
 
     #simulatePool(kwargs)
     nboots = 20
-    nprocs = 4
+    nprocs = processors
 
     # construct list of parameters to pass to processes
     iterboots = np.arange(nboots)
@@ -406,7 +406,7 @@ if __name__ == '__main__':
     kwargs["q_citysize"]  = 2
     kwargs['p_cluster']   = 'cluster'
 
-    nboots = 10
+    nboots = 20
     nprocs = processors
 
     # construct list to pass to processes
@@ -441,7 +441,7 @@ from class_spatialModels import simulateBehPool_local
 if __name__ == '__main__':
 
     kwargs = deepcopy(benchkwargs)
-    nboots = 14
+    nboots = 20
     nprocs = processors
     kwargs['behModel'] = {'type': 'Lones','phi': 0.01}
 
@@ -520,7 +520,7 @@ if __name__ == '__main__':
         'behModel'    : {'type': 'None'}
     }
 
-    nboots = 5
+    nboots = 20
     nprocs = processors
 
     iterlist = []
@@ -596,7 +596,7 @@ if __name__ == '__main__':
     }
 
     kwargs = benchkwargs.copy()
-    nboots = 5
+    nboots = 20
     nprocs = processors
 
     iterlist = []
@@ -670,7 +670,7 @@ if __name__ == '__main__':
     }
 
     kwargs = benchkwargs.copy()
-    nboots = 5
+    nboots = 20
     nprocs = processors
 
     iterlist = []
@@ -745,14 +745,14 @@ if __name__ == '__main__':
     }
 
     kwargs = benchkwargs.copy()
-    nboots = 5
+    nboots = 20
     nprocs = processors
 
     iterlist = []
 
     # change seeds
     for citysize in (1/np.sqrt(np.arange(.5, 1.6, .1))):
-        for shutdate in np.arange(15,41,5) :
+        for shutdate in (15,40,999) :
             for shutdown in ( [shutdate, 0.25], [999, 0] ) :
                 newkw = benchkwargs.copy()
                 newkw['q_citysize'] = citysize

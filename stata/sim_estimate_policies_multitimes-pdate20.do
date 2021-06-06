@@ -66,7 +66,7 @@ regsave using `basedir'results, addlabel(Outcome, Active, Model, Baseline, Speci
 
 
 preserve
-use results, clear
+use `basedir'results, clear
 keep if var=="1.treated"
 
 foreach spec in "True" "Estimated"{
@@ -88,7 +88,7 @@ drop _* r2 coef stderr var Spec N
 list Outcome Model Est* True*
 listtex Outcome Model True TrueN Estimated EstimatedN, type rstyle(tabular) head("\begin{tabular}{llcccc}" "\midrule Outcome & Model & True & N & Estimated & N \\ \midrule") foot("\bottomrule \end{tabular}")
 
-use results, clear
+use `basedir'results, clear
 keep if var=="1.treated#c.density"
 
 foreach spec in "True" "Estimated"{
@@ -136,7 +136,7 @@ summ diff if t>=20
 sort t
 keep if realtreated==1
 keep active myactive t
-save predictions, replace
+save `basedir'predictions, replace
 
 restore
 
@@ -314,7 +314,7 @@ regsave using `basedir'results, addlabel(Outcome, Active, Model, Baseline, Speci
 
 
 preserve
-use results, clear
+use `basedir'results, clear
 keep if var=="1.treated"
 
 foreach spec in "True" "Estimated"{
@@ -338,7 +338,7 @@ list Outcome Model Est* True*
 
 listtex Outcome Model True TrueN Estimated EstimatedN, type rstyle(tabular) head("\begin{tabular}{llcccc}" "\midrule Outcome & Model & True & N & Estimated & N \\ \midrule") foot("\bottomrule \end{tabular}")
 
-use results, clear
+use `basedir'results, clear
 keep if var=="1.treated#c.density"
 
 foreach spec in "True" "Estimated"{

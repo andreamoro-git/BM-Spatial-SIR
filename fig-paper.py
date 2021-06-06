@@ -138,14 +138,17 @@ b = pickle.load(file1)
 bavg = averageStats(b)
 file1.close()
 
-print('R0, average of '+str(len(b))+' replications: ',np.round(bavg.R0,2))
-print('R0, std of '+str(len(b))+' replications: ',np.round(bavg.R0std,2))
+with open(outputdir+'stats_on_section_4.txt', 'w') as f:
+    f.write('\nR0, average of '+str(len(b))+' replications: '+str(np.round(bavg.R0,2)))
+    f.write(']\nR0, std of '+str(len(b))+' replications: '+str(np.round(bavg.R0std,2)))
 
-avgmaxinf = np.average(list(map(lambda x: np.max(x.prtinf),b)))
-stdmaxinf = np.std(list(map(lambda x: np.max(x.prtinf),b)))
+    avgmaxinf = np.average(list(map(lambda x: np.max(x.prtinf),b)))
+    stdmaxinf = np.std(list(map(lambda x: np.max(x.prtinf),b)))
 
-print('Avg of steady state infected ', np.round(avgmaxinf,2))
-print('Std of steady state infected ', np.round(stdmaxinf,3))
+    f.write('\nAvg of steady state infected ' + str(np.round(avgmaxinf,2)))
+    f.write('\nStd of steady state infected ' + str(np.round(stdmaxinf,3)))
+
+f.close()
 
 #%% SIR and Spatial-SIR comparison of infection dynamics
 
@@ -926,7 +929,7 @@ lb2 = ax.plot(np.arange(days), 1-bLon.fracNotScared[:days],':', linewidth=1.9, c
 
 #plt.savefig(imagedir+'SIR_beh_responses_local.pdf')
 
-## %% Behavioral responses, comparison with benchmark
+#%% Behavioral responses, comparison with benchmark
 
 days = 112
 
@@ -1286,7 +1289,7 @@ if __name__ == "__main__":
     plt.savefig(imagedir+'estimatedbeta_beh-policies.pdf')
     plt.close()
 
-#%% prediction plots
+    #%% prediction plots
     import pandas as pd
     fsize=3.5
     popsize = 25600

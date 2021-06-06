@@ -10,21 +10,18 @@ Overview
 The code in this replication package generates the data and figures for the paper using Python and Stata. The replicator should expect the code to run for about 5-10 hours (including the code necessary to reproduce appendix data and figures). This README file does not contain documentation describing how to generate new simulations. Please refer to the code in class_spatialModels.py and its comments for details.
 
 We kindly ask authors using or adapting this code in scientific publications to cite our paper:
-  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, February 2021
+  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," Journal of Urban Economics, Forthcoming 2021.
 
   BibTeX entry:
 
   ```
-  @misc{bisinmoro2020geo,
-    title = "Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
-    author = "Bisin, Alberto and Moro, Andrea", institution = "National Bureau of Economic Research",
-    type = "Working Paper",
-    series = "Working Paper Series",
-    number = "27590", year = "2021",
-    month = "February",
-    doi = {10.3386/w27590},
+  @article{bisinmoro2020geo,
+    title = "JUE Insight: Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
+    author = "Bisin, Alberto and Moro, Andrea",
+    year = "2021",
+    month = "Forthcoming",
+    journal = "Journal of Urban Economics"
     URL = "http://www.nber.org/papers/w27590",
-    howpublished = "NBER Working Paper Series \# 27590"
     }
 ```
 
@@ -67,7 +64,7 @@ This code has been run on a MacBook Pro, 1,7 GHz Quad-Core Intel Core i7 running
 
 ### Memory and Runtime Requirements
 
-Most simulations take minutes to run on a standard (2020) desktop. The simulation of the model with city twice the size of the benchmark model may take a 1-2 hours depending on model parameters. We run 20 replications of each simulation using the multiprocessing package running 4 to 6 simulations in parallel. Depending on hardware, runtime can be reduced by increasing the value of the nprocs variable.
+Most simulations take minutes to run on a standard (2020) desktop. The simulation of the model with city twice the size of the benchmark model may take a 1-2 hours depending on model parameters. We run 20 replications of each simulation using the multiprocessing package running 6 simulations in parallel. Depending on hardware, runtime can be reduced by increasing the value of the nprocs variable.
 
 Simulation data is saved in pickle format under output/
 
@@ -75,12 +72,12 @@ Figures from such data are generated in seconds (each)
 
 #### Summary
 
-Approximate time needed to reproduce the analyses on a standard 2020 desktop machine: 5-10 hours
-The execution time can be shortened by reducing the number of replications of each simulation (variable nboots in each simulation). Results may vary slightly
+Approximate time needed to reproduce the analyses on a standard 2020 quad-core desktop machine: 10 hours
+The execution time can be shortened by reducing the number of replications of each simulation (variable nboots in each simulation) or increasing the number of processors.
 
 #### Details
 
-The code was last run on a **MacBook Pro, 1,7 GHz Quad-Core Intel Core i7** running on **MacOS Catalina 10.15.6**
+The code was last run on a **MacBook Pro, 1,7 GHz Quad-Core Intel Core i7** running on **MacOS Big Sur 11.4**
 
 The code assumes the root directory is the working directory, loads data from input/ and saves output in output/
 
@@ -95,11 +92,11 @@ Files marked with \* contain modules imported by other files and are not meant t
     2) spSAYDR_randLoc (child of spatialSAYDR). Simulates spatial-SIR with agents moved in randomly drawn locations every day
     3) spSAYDR_hetDensity (child of spatialSAYDR). Simulates spatial-SIR with initial density of agents decreasing from center of city
     4) spSAYDR_behav (child of spatialSAYDR). Simulates spatial-SIR with behavioral responses
-    5) spSAYDR_behav_local(child of spSAYDR_behav). Simulates spatial-SIR with behavioral responses only around the contagion circle
+    5) spSAYDR_behav_local (child of spSAYDR_behav). Simulates spatial-SIR with behavioral responses only around the contagion circle
 
 - \* class_SIRmodel.py
 
-    contains the SIRmodel class, with all methods necessary to simulate a standard (behavioral) SIR model (without the spatial elements)
+    contains the SIRmodel class, with all methods necessary to simulate a (behavioral) SIR model (without the spatial elements)
 
 - \* class_averageStats.py contains the averageStats class used to compute average statistics for several replications of each simulation. The class accepts as input a list of objects of the spatialSAYDR class
 
@@ -129,21 +126,18 @@ The random seed is set as spatialSAYDR attribute q_seed (row 33 of class_spatial
 This code is licensed under a Creative Commons/CC-BY-SA 4.0 (Attribution-ShareAlike 4.0 International) license. See LICENSE.txt for details.
 
 We kindly ask academics using or adapting this code in scientific publications to cite our paper:
-  Alberto Bisin and Andrea Moro. "Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," NBER Working Paper 27590, February 2021
+  Alberto Bisin and Andrea Moro. "JUE Insight: Learning Epidemiology by Doing: The Empirical Implications of a Spatial SIR Model with Behavioral Responses," Journal of Urban Economics, Forthcoming 2021
 
   BibTeX entry:
 
 ```
-  @misc{bisinmoro2020geo,
-    title = "Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
-    author = "Bisin, Alberto and Moro, Andrea", institution = "National Bureau of Economic Research",
-    type = "Working Paper",
-    series = "Working Paper Series",
-    number = "27590", year = "2021",
-    month = "June",
-    doi = {10.3386/w27590},
+  @article{bisinmoro2020geo,
+    title = "JUE Insight: Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses",
+    author = "Bisin, Alberto and Moro, Andrea",
+    year = "2021",
+    month = "Forthcoming",
+    journal = "Journal of Urban Economics"
     URL = "http://www.nber.org/papers/w27590",
-    howpublished = "NBER Working Paper Series \# 27590"
     }
 ```
 
@@ -153,14 +147,13 @@ Instructions to Replicators
 (Optional step) To download and regenerate calibration data
 - Run stata/importdata.do
 
-To simulate the model and generate figures, all code can be run 
+To simulate the model and generate figures, all code can be run
 at once by executing from a shell (after appropriately modifying
-the path to the stata executable) from the root directory
+the path to the stata executable) from the root directory:
 
 - doall.sh
 
-Alternatively, run the following files from the root dir in this order
-
+Alternatively, run the following files from the root dir in this order:
 
 1) Run python sim_paper.py
 2) Run stata sim_estimate_dens.do
@@ -168,68 +161,72 @@ Alternatively, run the following files from the root dir in this order
 4) Run stata sim_estimate_policies_multitimes.do (this generates latex code for the last table)
 5) Run python fig-paper.py (generates all figures)
 
-(To generate appendix figures)
+To generate appendix figures:
 
 6. Run python class_simul_policy.py
 7. Run python fig-appendix.py
 
-All figures are saved in output/images
+All figures are saved in output/images. Intermediated data is saved in output/
 
 List of figures
 ---------------------------
 
 | Figure # | Program      | Line Number | Output file
 |----------|--------------|-------------|-----------------------------------------------
-| 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
-| 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
-| 1        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
-| 2        | fig-paper.py | 234         | figuresdir/nc5-density_contagion2.pdf
-| 3        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
-| 3        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
-| 3        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
-| 3        | fig-paper.py | 96          | figuresdir/nc5-randomcluster_pos-day10.png
-| 3        | fig-paper.py | 96          | figuresdir/nc5-randomcluster_pos-day20.png
-| 3        | fig-paper.py | 96          | figuresdir/nc5-randomcluster_pos-day30.png
-| 4        | fig-paper.py | 307         | figuresdir/nc5-short-random-rates.pdf
-| 5        | fig-paper.py | 405         | figuresdir/nc5-SIR-citysize-rates.pdf
-| 6        | fig-paper.py | 496         | figuresdir/nc5-short-density_contagion1.pdf
-| 7        | fig-paper.py | 619         | figuresdir/nc5-short-3densities.pdf
-| 8        | fig-paper.py | 657         | figuresdir/nc5-hetdens1.pdf
-| 8        | fig-paper.py | 129         | figuresdir/nc5-hetdens_pos-day0.png
-| 9        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day10.png
-| 9        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day20.png
-| 9        | fig-paper.py | 76          | figuresdir/nc5-baseline_pos-day30.png
-| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day10.png
-| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day20.png
-| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day30.png
-| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day50.png
-| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day150.png
-| 9        | fig-paper.py | 117         | figuresdir/nc5-nomove_pos-day250.png
-| 10       | fig-paper.py | 774         | figuresdir/nc5-short-nomovement-rateslarge.pdf
-| 11       | fig-paper.py | 807         | figuresdir/nc5-SIR_beh_responses.pdf
-| 12       | fig-paper.py | 891         | figuresdir/nc5-SIR_beh.pdf
-| 13       | fig-paper.py | 960         | figuresdir/nc5-SIR_beh_local.pdf
-| 14       | fig-paper.py | 989         | figuresdir/nc5-est_densitybetas.pdf
-| 15       | fig-paper.py | 1138        | figuresdir/nc5-estimatedbeta_policies.pdf
-| 15       | fig-paper.py | 1287        | figuresdir/nc5-estimatedbeta_beh-policies.pdf
-| 16       | fig-paper.py | 1339        | figuresdir/nc5-prediction_nobias.pdf
-| 17       | fig-paper.py | 1384        | figuresdir/nc5-prediction_withbias.pdf
+| 1        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day10.png
+| 1        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day20.png
+| 1        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day30.png
+| 2        | fig-paper.py | 234         | output/images/nc5-density_contagion2.pdf
+| 3        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day10.png
+| 3        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day20.png
+| 3        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day30.png
+| 3        | fig-paper.py | 96          | output/images/nc5-randomcluster_pos-day10.png
+| 3        | fig-paper.py | 96          | output/images/nc5-randomcluster_pos-day20.png
+| 3        | fig-paper.py | 96          | output/images/nc5-randomcluster_pos-day30.png
+| 4        | fig-paper.py | 307         | output/images/nc5-short-random-rates.pdf
+| 5        | fig-paper.py | 405         | output/images/nc5-SIR-citysize-rates.pdf
+| 6        | fig-paper.py | 496         | output/images/nc5-short-density_contagion1.pdf
+| 7        | fig-paper.py | 619         | output/images/nc5-short-3densities.pdf
+| 8        | fig-paper.py | 657         | output/images/nc5-hetdens1.pdf
+| 8        | fig-paper.py | 129         | output/images/nc5-hetdens_pos-day0.png
+| 9        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day10.png
+| 9        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day20.png
+| 9        | fig-paper.py | 76          | output/images/nc5-baseline_pos-day30.png
+| 9        | fig-paper.py | 117         | output/images/nc5-nomove_pos-day10.png
+| 9        | fig-paper.py | 117         | output/images/nc5-nomove_pos-day20.png
+| 9        | fig-paper.py | 117         | output/images/nc5-nomove_pos-day30.png
+| 9        | fig-paper.py | 117         | output/images/nc5-nomove_pos-day50.png
+| 9        | fig-paper.py | 117         | output/images/nc5-nomove_pos-day150.png
+| 9        | fig-paper.py | 117         | output/images/nc5-nomove_pos-day250.png
+| 10       | fig-paper.py | 774         | output/images/nc5-short-nomovement-rateslarge.pdf
+| 11       | fig-paper.py | 807         | output/images/nc5-SIR_beh_responses.pdf
+| 12       | fig-paper.py | 891         | output/images/nc5-SIR_beh.pdf
+| 13       | fig-paper.py | 960         | output/images/nc5-SIR_beh_local.pdf
+| 14       | fig-paper.py | 989         | output/images/nc5-est_densitybetas.pdf
+| 15       | fig-paper.py | 1138        | output/images/nc5-estimatedbeta_policies.pdf
+| 15       | fig-paper.py | 1287        | output/images/nc5-estimatedbeta_beh-policies.pdf
+| 16       | fig-paper.py | 1339        | output/images/nc5-prediction_nobias.pdf
+| 17       | fig-paper.py | 1384        | output/images/nc5-prediction_withbias.pdf
 
 List of Tables
 ---------------------------
-| Table # | Program                           | Line Number | Notes
+| Table # | Program                           | Line Number | Output file
 |---------|-----------------------------------|-------------|-----------------------------------------------
 | 1       |                                   |             | manually generated
-| 2       |sim_estimate_policies_multitimes.do| 160         |
+| 2       |sim_estimate_policies_multitimes.do| 160         | output/nc5-estimates-multitimes
 
---
+Statistics reported in Section 4
+---------------------------
+| Program                           | Line Number | Output file
+|-----------------------------------|-------------|-----------------------------------------------
+| fig-paper.py                      | 142-149     | output/nc5-stats_on_section_4.txt
+
 
 ## Acknowledgements
 
-* In generating this README we followed the template README for social science replication packages, available at https://social-science-data-editors.github.io/template_README/
+* To generate this README we followed the template README for social science replication packages, available at https://social-science-data-editors.github.io/template_README/
 
-* To generate a list of figure numbers with figure names:
+* To generate a list of figure numbers with corresponding figure filenames from the LaTeX source:
 https://stackoverflow.com/questions/66551105/lazy-quantifier-for-an-exact-word-in-large-text-with-newlines/66555601#66555601
-
-* To find code row numbers where each filename is generated (needs some formatting of the file generates by the previous code) run the following on a bash shell
+Next, to find the code row numbers where each filename is generated (needs some formatting of the file generates by the previous step) run the following on a shell
 while read line; do grep -n "$line" *.py; done < figs.txt
