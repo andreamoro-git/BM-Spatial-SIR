@@ -16,14 +16,15 @@ We kindly ask authors using or adapting this code in scientific publications to 
 
   ```
   @article{bisin-moro-JUE-21,
-  title = {JUE Insight: Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses},
-  journal = {Journal of Urban Economics},
-  pages = {103368},
-  year = {2021},
-  issn = {0094-1190},
-  doi = {https://doi.org/10.1016/j.jue.2021.103368},
-  url = {https://www.sciencedirect.com/science/article/pii/S0094119021000504},
-  author = {Alberto Bisin and Andrea Moro}
+    title = {JUE Insight: Learning Epidemiology by Doing: The Empirical Implications of a Spatial-SIR Model with Behavioral Responses},
+    journal = {Journal of Urban Economics},
+    pages = {103368},
+    year = {2021},
+    issn = {0094-1190},
+    doi = {https://doi.org/10.1016/j.jue.2021.103368},
+    url = {https://www.sciencedirect.com/science/article/pii/S0094119021000504},
+    author = {Alberto Bisin and Andrea Moro}
+  }
 ```
 
 Data Availability and Provenance Statements
