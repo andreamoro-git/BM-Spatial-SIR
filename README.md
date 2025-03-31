@@ -59,6 +59,7 @@ This code has been run on a MacBook Pro, 1,7 GHz Quad-Core Intel Core i7 running
   - `numpy` 1.19.2
   - `matplotlib` 3.3.2
   - `pandas` 1.1.3
+(use Environment/requirements.txt if using a virtual environment)
 
 - (optional) The python code was run using the IDE Spyder version 4.2.0
 
@@ -145,6 +146,10 @@ We kindly ask academics using or adapting this code in scientific publications t
 
 Instructions to Replicators
 ---------------------------
+
+If you are running the files interactively, the working directory should be the root 
+of the project. 
+
 To generate an appropriate Python virtual environment, a requirements.txt 
 file is provided under Environment/ 
 
