@@ -145,6 +145,8 @@ We kindly ask academics using or adapting this code in scientific publications t
 
 Instructions to Replicators
 ---------------------------
+To generate an appropriate Python virtual environment, a requirements.txt 
+file is provided under Environment/ 
 
 0. (Optional step) To download and regenerate calibration data
 - Run stata/importdata.do
@@ -152,14 +154,14 @@ Instructions to Replicators
 1. Edit the first line in doall.sh to indicate the location of your
 stata executable 
 
-2a.  To simulate the model and generate figures, all code can be run
+2. To simulate the model and generate figures, all code can be run
 at once by executing from a shell (after appropriately modifying
-the path to the stata executable) from the root directory, after
-indicating the location of the stata executable in the first row:
+the path to the stata executable, see step 1) from the root directory 
+of the project.
 
 - bash doall.sh
 
-2b. Alternatively, run the following files from the root dir in this order:
+2. Alternatively, run the following files from the root dir in this order:
 
 1) Run python sim_paper.py
 2) Run stata/sim_estimate_dens.do
