@@ -146,21 +146,25 @@ We kindly ask academics using or adapting this code in scientific publications t
 Instructions to Replicators
 ---------------------------
 
-(Optional step) To download and regenerate calibration data
+0. (Optional step) To download and regenerate calibration data
 - Run stata/importdata.do
 
-To simulate the model and generate figures, all code can be run
+1. Edit the first line in doall.sh to indicate the location of your
+stata executable 
+
+2a.  To simulate the model and generate figures, all code can be run
 at once by executing from a shell (after appropriately modifying
-the path to the stata executable) from the root directory:
+the path to the stata executable) from the root directory, after
+indicating the location of the stata executable in the first row:
 
 - bash doall.sh
 
-Alternatively, run the following files from the root dir in this order:
+2b. Alternatively, run the following files from the root dir in this order:
 
 1) Run python sim_paper.py
-2) Run stata sim_estimate_dens.do
-3) Run stata sim_estimate_policies_multitimes-pdate20.do
-4) Run stata sim_estimate_policies_multitimes.do (this generates latex code for the last table)
+2) Run stata/sim_estimate_dens.do
+3) Run stata/sim_estimate_policies_multitimes-pdate20.do
+4) Run stata/sim_estimate_policies_multitimes.do (this generates latex code for the last table)
 5) Run python fig-paper.py (generates all figures)
 
 To generate appendix figures:
