@@ -148,33 +148,39 @@ Instructions to Replicators
 To generate an appropriate Python virtual environment, a requirements.txt 
 file is provided under Environment/ 
 
+All figures are saved in output/images. Intermediated data is saved in output/
+
 0. (Optional step) To download and regenerate calibration data
 - Run stata/importdata.do
 
 1. Edit the first line in doall.sh to indicate the location of your
 stata executable 
 
-2. To simulate the model and generate figures, all code can be run
+2. (all at once) To simulate the model and generate figures, all code can be run
 at once by executing from a shell (after appropriately modifying
 the path to the stata executable, see step 1) from the root directory 
 of the project.
 
 - bash doall.sh
 
-2. Alternatively, run the following files from the root dir in this order:
+2. (manual runs) Alternatively, run the following commands can be run from the root
+of the project in this order:
 
-1) Run python sim_paper.py
-2) Run stata/sim_estimate_dens.do
-3) Run stata/sim_estimate_policies_multitimes-pdate20.do
-4) Run stata/sim_estimate_policies_multitimes.do (this generates latex code for the last table)
-5) Run python fig-paper.py (generates all figures)
+```
+1) python sim_paper.py
+2) stata/sim_estimate_dens.do
+3) stata/sim_estimate_policies_multitimes-pdate20.do
+4) stata/sim_estimate_policies_multitimes.do (this generates latex code for the last table)
+5) python fig-paper.py (generates all figures)
+```
 
 To generate appendix figures:
 
-6. Run python class_simul_policy.py
-7. Run python fig-appendix.py
+```
+6. python class_simul_policy.py
+7. python fig-appendix.py
+```
 
-All figures are saved in output/images. Intermediated data is saved in output/
 
 List of figures
 ---------------------------
